@@ -34,9 +34,9 @@ From now on, each player on his turn must drop 1 stone of any color onto an empt
 
 ##Restrictions
 
-• A stone may not be dropped onto a cell that has no adjacent empty cell.
-• A stone is moved in a straight line either orthogonally or diagonally until another stone in its path or the edge of the board blocks it. 
-• Stones cannot jump over other stones.
+- A stone may not be dropped onto a cell that has no adjacent empty cell.
+- A stone is moved in a straight line either orthogonally or diagonally until another stone in its path or the edge of the board blocks it. 
+- Stones cannot jump over other stones.
 
 The game ends when a player is unable to take his turn.
 

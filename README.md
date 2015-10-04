@@ -2,7 +2,7 @@
 Projeto realizado no âmbito da disciplina de Programação em Lógica com apoio de interface gráfica da disciplina de LAIG
 
 ## Number of players
-- 2, 3 or 4 players
+2, 3 or 4 players
 
 ## Materials
 

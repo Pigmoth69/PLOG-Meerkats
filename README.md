@@ -52,6 +52,6 @@ If two or more players are tied when comparing their largest groups then look at
 When playing a 2 or 3 player game the rules are the same as above with but one exception, leave the undrawn chips in the bag.
 
 ##Links
--http://www.boardgamegeek.com/boardgame/161090/meerkats
--http://www.ludosoup.com/2014_06_01_archive.html
+- http://www.boardgamegeek.com/boardgame/161090/meerkats .
+- http://www.ludosoup.com/2014_06_01_archive.html .
 

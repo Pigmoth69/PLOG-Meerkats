@@ -24,7 +24,7 @@ Place the 4 chips in a bag and then the youngest player draws a chip and passes 
 
 After all the chips are drawn players look at their chips without revealing them to the other players.
 
-Chips will remain hidden until the end of the game.
+Chips will remain hidden until the end of the game. 
 
 The color of a chip corresponds to the color of the stones that belong to that player.
 

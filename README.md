@@ -54,4 +54,5 @@ When playing a 2 or 3 player game the rules are the same as above with but one e
 ##Links
 - http://www.boardgamegeek.com/boardgame/161090/meerkats .
 - http://www.ludosoup.com/2014_06_01_archive.html .
+- https://www.cpp.edu/~jrfisher/www/prolog_tutorial/2_15.html .
 

@@ -1,0 +1,1 @@
+hexBoard(Board), drawBoard(Board).

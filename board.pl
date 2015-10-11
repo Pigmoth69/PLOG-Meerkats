@@ -1,3 +1,4 @@
+/*BOARD INICICIALMENTE VAZIA*/
 hexBoard0(Board) :- Board =
 [	[[' '], [' '],[' '], [' '],
 	 [' ']],
@@ -19,7 +20,7 @@ hexBoard0(Board) :- Board =
 	[[' '], [' '],[' '], [' '],
 	 [' ']]
 ].
-
+/*BOARD COM UM JOGO A DECORRER*/
 hexBoard1(Board) :- Board =
 [	[['B'], [' '],[' '], [' '],[' ']],
  	[[' '], [' '],['R'], [' '],[' '], [' ']],
@@ -32,33 +33,75 @@ hexBoard1(Board) :- Board =
 	[[' '], [' '],[' '], ['G'],[' ']]
 ].
 
+/*BOARD COM APENAS A PEÇA INICIAL*/
+hexBoard2(Board) :- Board =
+[	[[' '], [' '],[' '], [' '],[' ']],
+ 	[[' '], [' '],[' '], [' '],[' '], [' ']],
+	[[' '], [' '],[' '], [' '],[' '], [' '],[' ']],
+	[[' '], [' '],[' '], [' '],[' '], [' '],[' '], [' ']],
+ 	[[' '], [' '],[' '], [' '],[' '], [' '],[' '], [' '], [' ']],
+ 	[[' '], [' '],[' '], [' '],[' '], [' '],[' '], [' ']],
+ 	[[' '], [' '],['B'], [' '],[' '], [' '],[' ']],
+	[[' '], [' '],[' '], [' '],[' '], [' ']],
+	[[' '], [' '],[' '], [' '],[' ']]
+].
+
+/*BOARD COM O FIM DE JOGO 1- 15 PEÇAS DA MESMA COR NO TABULEIRO*/
+hexBoard3(Board) :- Board =
+[	[['B'], ['R'],['R'], ['R'],['R']],
+ 	[['R'], ['R'],['R'], ['R'],[' '], [' ']],
+	[['R'], ['Y'],['Y'], ['R'],['B'], ['B'],[' ']],
+	[['G'], ['R'],['R'], ['Y'],['Y'], ['Y'],['B'], [' ']],
+ 	[['R'], ['R'],['R'], ['Y'],['G'], ['G'],['G'], ['B'], [' ']],
+ 	[['B'], ['G'],['Y'], ['G'],['G'], ['B'],['B'], [' ']],
+ 	[['B'], ['B'],['B'], ['B'],['B'], [' '],['B']],
+	[[' '], [' '],[' '], [' '],[' '], [' ']],
+	[[' '], [' '],[' '], ['G'],[' ']]
+].
+
+/*BOARD COM O FIM DE JOGO 2- EMPATE COM O MAIOR GRUPO*/
+
+hexBoard4(Board) :- Board =
+[	[['B'], ['G'],['G'], ['Y'],['G']],
+ 	[['G'], ['G'],['R'], ['Y'],['Y'], ['Y']],
+	[['R'], ['Y'],['Y'], ['Y'],['B'], ['B'],['Y']],
+	[['G'], ['R'],['R'], ['Y'],['Y'], ['Y'],['B'], ['Y']],
+ 	[['R'], ['R'],['R'], ['Y'],['G'], ['G'],['G'], ['B'], [' ']],
+ 	[['B'], ['G'],['Y'], ['G'],['G'], ['B'],['B'], [' ']],
+ 	[['B'], ['B'],['B'], ['B'],['B'], ['R'],['B']],
+	[['G'], ['R'],['R'], ['R'],['R'], [' ']],
+	[[' '], [' '],['R'], ['G'],['R']]
+].
+
 drawBoard(Board) :- secundaryDrawBoard(Board, 0).
 
 secundaryDrawBoard([Line | Board], Number) :- Board \= [], 
-											drawIdentation(Number), write_border(Line),
-											drawIdentation(Number), write_line(Line),
+											drawIdentation(Number), displayBoarder(Line),
+											drawIdentation(Number), displayLine(Line),
 											NewNumber is Number+1,
 											secundaryDrawBoard(Board, NewNumber).
 
-secundaryDrawBoard([Line], Number) :-	drawIdentation(Number), write_border(Line),
-										drawIdentation(Number), write_line(Line), 
-										drawIdentation(Number), write_border(Line).
+secundaryDrawBoard([Line], Number) :-	drawIdentation(Number), displayBoarder(Line),
+										drawIdentation(Number), displayLine(Line), 
+										drawIdentation(Number), displayBoarder(Line).
 
-write_border([_|Line]) :- write('   *---'), write_border_aux(Line).
+displayBoarder([_|Line]) :- write('   *---'), displayAuxBorder(Line).
 
-write_border_aux([]) :- write('*\n').
 
-write_border_aux([_|Line]) :- write('*---'), write_border_aux(Line).
+displayAuxBorder([]) :- write('*\n').
 
-write_aux_line([]) :- write('|\n').
+displayAuxBorder([_|Line]) :- write('*---'), displayAuxBorder(Line).
 
-write_aux_line([Elem|Line]) :- 	write('|'), write_elem(Elem),
-								write_aux_line(Line).
+writeAuxLine([]) :- write('|\n').
 
-write_line(Line) :- write(' '), write(' '), write(' '),
-					write_aux_line(Line).
+writeAuxLine([Elem|Line]) :- 	write('|'), writeSymbol(Elem),
+								writeAuxLine(Line).
 
-write_elem([Shape]) :- write(' '), write(Shape), write(' '). 
+displayLine(Line) :- write(' '), write(' '), write(' '),
+					writeAuxLine(Line).
+
+					
+writeSymbol([Color]) :- write(' '), write(Color), write(' '). 
 
 drawIdentation(0) :- write('        ').
 drawIdentation(1) :- write('      ').

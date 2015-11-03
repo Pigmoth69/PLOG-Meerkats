@@ -1,3 +1,7 @@
+:- use_module(library(lists)).
+
+
+
 /*BOARD INICICIALMENTE VAZIA*/
 hexBoard0(Board) :- Board =
 [	[[' '], [' '],[' '], [' '],

@@ -3,11 +3,11 @@ playersInfo([]).
 
 playGame(NumberPlayers, NumberBots):- 	availableColors(Colors),
 										playersInfo(Info),
-										AssignPlayerColor(NumberPlayers, Info, Colors, 1).
+										assignPlayerColor(NumberPlayers, Info, Colors, 1).
 
-AssignPlayerColor(X, _, _, Y):- X = Y-1.
+assignPlayerColor(X, _, _, Y):- X = Y-1.
 
-AssignPlayerColor(NumberPlayers, Info, Colors, N):-
+assignPlayerColor(NumberPlayers, Info, Colors, N):-
 										printPlayerWaitForEnterScreen(N1),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
 										N1 is N + 1,

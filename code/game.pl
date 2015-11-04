@@ -8,14 +8,17 @@ playGame(NumberPlayers, NumberBots):- 	availableColors(Colors),
 assignPlayerColor(X, _, _, Y):- X = Y-1.
 
 assignPlayerColor(NumberPlayers, Info, Colors, N):-
-										printPlayerWaitForEnterScreen(N1),
+										printPlayerWaitForEnterScreen(N),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
 										N1 is N + 1,
 										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
 
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),
-										Rand is random(0, Length, Index),
+										random(0, Length, Index),
+										getColor(Index, Color, Colors, RemainingColors),
+										
+
 
 getIndexColor(], Index, Color):-
 

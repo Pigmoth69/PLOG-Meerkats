@@ -5,7 +5,7 @@ playGame(NumberPlayers, NumberBots):- 	availableColors(Colors),
 										playersInfo(Info),
 										AssignPlayerColor(NumberPlayers, Info, Colors, 1).
 
-AssignPlayerColor(X, _, Y):- X = Y-1.
+AssignPlayerColor(X, _, _, Y):- X = Y-1.
 
 AssignPlayerColor(NumberPlayers, Info, Colors, N):-
 										printPlayerWaitForEnterScreen(N1),

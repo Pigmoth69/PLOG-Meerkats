@@ -11,7 +11,7 @@ assignPlayerColor(NumberPlayers, Info, Colors, N):-
 										printPlayerWaitForEnterScreen(N1),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
 										N1 is N + 1,
-										AssignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
+										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
 
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),

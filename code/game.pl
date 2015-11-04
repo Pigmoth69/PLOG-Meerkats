@@ -1,14 +1,24 @@
 availableColors([blue, red, green, yellow]).
 playersInfo([]).
 
-playGame(NumberPlayers, NumberBots):- 	availableColors(Colors),
-										playersInfo(Info),
-										assignPlayerColor(NumberPlayers, Info, Colors, 1).
+playGame(NumberPlayers):- 	availableColors(Colors),
+							playersInfo(Info),
+							assignPlayerColor(NumberPlayers, Info, Colors, 1),
+							printInfo(Info, NumberPlayers),
+							abort.
 
-assignPlayerColor(X, _, _, Y):- X = Y-1.
+printInfo([_], 0).
+
+printInfo([[Head|Tail] | MainTail], Number):- write(Head), write(' '), write(Tail), nl,
+										NewNumber is Number - 1,
+										printInfo(MainTail, NewNumber).
+
+
+assignPlayerColor(X, _, _, Y):- =(X,Y), write('shit').
 
 assignPlayerColor(NumberPlayers, Info, Colors, N):-
 										printPlayerWaitForEnterScreen(N),
+										write('la vai mais um'),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
 										N1 is N + 1,
 										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
@@ -16,11 +26,22 @@ assignPlayerColor(NumberPlayers, Info, Colors, N):-
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),
 										random(0, Length, Index),
-										getColor(Index, Color, Colors, RemainingColors),
-										
+										getColor(Index, Color, Colors, ResultColors),
+										storeInfo(Info, Color, N, ResultInfo).
+
+getColor(0, Head, [Head | Tail], ResultColors):-
+										append(ResultColors, Tail, Result),
+										ResultColors is Result.
+
+getColor(Index, Color, [CHead | CTail], ResultColors):-
+										NewIndex is Index -1,
+										append(ResultColors, CHead, Result),
+										getColor(NewIndex, Color, CTail, Result).
+
+storeInfo(Info, Color, N, ResultInfo):- append(Info, [N, Color], ResultInfo).
 
 
-getIndexColor(], Index, Color):-
+
 
 
 
@@ -28,7 +49,7 @@ printPlayerWaitForEnterScreen(N):-
 	clearScreen,
 	write('***************************************************'), nl,
 	write('||                                               ||'), nl,
-	format('||   Time for player ~d to sort his color.       ||', [N]), nl,	
+	format('||   Time for player ~d to sort his color.        ||', [N]), nl,	
 	write('||                                               ||'), nl,
 	write('||    Make sure your are the only one            ||'), nl,
 	write('||    watching the result!!!                     ||'), nl,
@@ -36,7 +57,7 @@ printPlayerWaitForEnterScreen(N):-
 	write('||    Type Enter when you are ready!             ||'), nl,
 	write('||                                               ||'), nl,
 	write('***************************************************'), nl,
-	getEnter.
+	getEnter, write('deuEnter').
 
 play:- 
 	logicalBoard(LogicalBoard),

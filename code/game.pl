@@ -1,7 +1,46 @@
+availableColors([blue, red, green, yellow]).
+playersInfo([]).
+
+playGame(NumberPlayers, NumberBots):- 	availableColors(Colors),
+										playersInfo(Info),
+										AssignPlayerColor(NumberPlayers, Info, Colors, 1).
+
+AssignPlayerColor(X, _, Y):- X = Y-1.
+
+AssignPlayerColor(NumberPlayers, Info, Colors, N):-
+										printPlayerWaitForEnterScreen(N1),
+										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
+										N1 is N + 1,
+										AssignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
+
+sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
+										length(Colors, Length),
+										Rand is random(0, Length, Index),
+
+getIndexColor(], Index, Color):-
+
+
+
+printPlayerWaitForEnterScreen(N):-
+	clearScreen,
+	write('***************************************************'), nl,
+	write('||                                               ||'), nl,
+	format('||   Time for player ~d to sort his color.       ||', [N]), nl,	
+	write('||                                               ||'), nl,
+	write('||    Make sure your are the only one            ||'), nl,
+	write('||    watching the result!!!                     ||'), nl,
+	write('||                                               ||'), nl,
+	write('||    Type Enter when you are ready!             ||'), nl,
+	write('||                                               ||'), nl,
+	write('***************************************************'), nl,
+	getEnter.
+
 play:- 
 	logicalBoard(LogicalBoard),
 	displayBoard(Board),
-	drawBoard(Board, LogicalBoard).
+	drawBoard(Board, LogicalBoard),
+	getEnter.
+
 
 
 
@@ -32,7 +71,7 @@ play:-
 
 
 logicalBoard([
-	            [blue, green, yellow, red, empty],
+	            [empty, empty, empty, empty, empty],
 	         [empty, empty, empty, empty, empty, empty],
 	      [empty, empty, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],

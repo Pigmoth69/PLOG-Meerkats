@@ -2,7 +2,7 @@ mainMenu:-
 	printMainMenu,
 	getChar(Input),
 	(
-		Input = '1' -> gameMenu, mainMenu;
+		Input = '1' -> numberOfPlayersScreen, mainMenu;
 		Input = '2' -> help, mainMenu;
 		Input = '3' -> abort;
 
@@ -13,7 +13,7 @@ mainMenu:-
 printMainMenu:-
 	clearScreen,
 	write('*********************************'), nl,
-	write('||        :. MEERKATS .:       ||'), nl,
+	write('||           MEERKATS          ||'), nl,
 	write('||                             ||'), nl,
 	write('||  1 - Play                   ||'), nl,
 	write('||  2 - How to                 ||'), nl,
@@ -22,36 +22,45 @@ printMainMenu:-
 	write('*********************************'), nl,
 	write('Choose an option:'), nl.
 
-gameMenu:-
-	printGameMenu,
-	getChar(Input),
+numberOfPlayersScreen:-
+	printNumbOfPlayersScreen,
+	getInteger(NumberPlayers),
 	(
-		Input = '1' -> write('ok');
-		Input = '2' -> write('ok');
-		Input = '3' -> write('ok');
-		Input = '4' -> mainMenu;
-
-		nl,
-		gameMenu
+		NumberPlayers > 4 -> numberOfPlayersScreen;
+		NumberPlayers < 2 -> numberOfPlayersScreen;
+		numberOfBotsScreen(NumberPlayers)
 	).
 
-printGameMenu:-
+printNumbOfPlayersScreen:-
 	clearScreen,
-	write('*********************************'), nl,
-	write('||       :. Game Mode .:       ||'), nl,
-	write('||                             ||'), nl,
-	write('||  1. Player vs. Player       ||'), nl,
-	write('||  2. Player vs. Computer     ||'), nl,
-	write('||  3. Computer vs. Computer   ||'), nl,
-	write('||  4. Back                    ||'), nl,
-	write('||                             ||'), nl,
-	write('*********************************'), nl,
-	write('Choose an option:'), nl.
+	write('***************************************************'), nl,
+	write('||                                               ||'), nl,
+	write('||   Type a number of players (between 2 or 4)   ||'), nl,
+	write('||                                               ||'), nl,
+	write('***************************************************'), nl.
+
+numberOfBotsScreen(NumberPlayers):-
+	printNumberOfBotsScreen(NumberPlayers),
+	getInteger(NumberBots),
+	(
+		NumberBots > NumberPlayers -> write('Number of Bots exceeds the number of Players.'), getEnter;
+		playGame(NumberPlayers, NumberBots)
+	).
+
+printNumberOfBotsScreen(NumberPlayers):- 
+	clearScreen,
+	write('***************************************************'), nl,
+	write('||                                               ||'), nl,
+	format('||    Type a number of bots (between 0 and ~d)    ||', [NumberPlayers]), nl,
+	write('||                                               ||'), nl,
+	write('***************************************************'), nl.
+
+
 
 help:-
 	clearScreen,
 	write('**********************************************************************'), nl,
-	write('||                    :. How to play Meerkats.:                     ||'), nl,
+	write('||                       How to play Meerkats                       ||'), nl,
 	write('**********************************************************************'), nl,
 	write('||                                                                  ||'), nl,
 	write('||  Meerkats is a game that can be played between 2, 3 or 4 players ||'), nl,
@@ -69,7 +78,7 @@ help:-
 
 	clearScreen,
 	write('**********************************************************************'), nl,
-	write('||                    :. How to play Meerkats.:                     ||'), nl,
+	write('||                       How to play Meerkats                       ||'), nl,
 	write('**********************************************************************'), nl,
 	write('||                                                                  ||'), nl,
 	write('||  At the start of the match, each player draws a stone            ||'), nl,
@@ -93,7 +102,7 @@ help:-
 
 	clearScreen,
 	write('**********************************************************************'), nl,
-	write('||                    :. How to play Meerkats.:                     ||'), nl,
+	write('||                       How to play Meerkats                       ||'), nl,
 	write('**********************************************************************'), nl,
 	write('||  A stone is moved in a straight line until another stone is in   ||'), nl,
 	write('||  it\'s path or the edge of the board blocks it.                  ||'), nl,
@@ -110,7 +119,7 @@ help:-
 
 	clearScreen,
 	write('**********************************************************************'), nl,
-	write('||                    :. How to play Meerkats.:                     ||'), nl,
+	write('||                       How to play Meerkats                       ||'), nl,
 	write('**********************************************************************'), nl,
 	write('||  The game ends when any of the following happens:                ||'), nl,
 	write('||                                                                  ||'), nl,

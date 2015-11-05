@@ -2,35 +2,26 @@ availableColors([blue, red, green, yellow]).
 
 playGame(NumberPlayers):- 	availableColors(Colors),
 							N is 1,
-							assignPlayerColor(NumberPlayers, Info, Colors, N,ResultInfo),nl,
-							format('NumberPlayers: ~d', [NumberPlayers]), nl,
-							write('List: '), write(ResultInfo),nl,
-							write('Colors: '),
-							write(Colors),nl,
-							write(N),nl,
-							write('sair assign'), nl,
-							length(Info, Length),
-							format('length of Info: ~d ', [Length]),
-							abort.
+							assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo).
 
 
 
-assignPlayerColor(NumberPlayers, Info, Colors, N,R):-
+assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo):-
 										N =< NumberPlayers,
-										%printPlayerWaitForEnterScreen(N),
+										playerReadyForColorAssignment(N),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
 										N1 is N + 1,
-										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1,R).
+										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1, RInfo).
 										
-assignPlayerColor(NumberPlayers, Info, _, N,Info):-
-	N > NumberPlayers.
+assignPlayerColor(_, Info, _, _, Info).
 
 
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),
 										random(0, Length, Index),
 										getColor(Index, Color, Colors, ResultColors),
-										storeInfo(Info, Color, N, ResultInfo).
+										storeInfo(Info, Color, N, ResultInfo),
+										playerColorScreen(N, Color).
 
 getColor(_, _, [],[]).
 
@@ -47,7 +38,7 @@ storeInfo(Info, Color, N, ResultInfo):- append(Info, [[N | Color]], ResultInfo).
 
 
 
-printPlayerWaitForEnterScreen(N):-
+playerReadyForColorAssignment(N):-
 	clearScreen,
 	write('***************************************************'), nl,
 	write('||                                               ||'), nl,
@@ -57,6 +48,25 @@ printPlayerWaitForEnterScreen(N):-
 	write('||    watching the result!!!                     ||'), nl,
 	write('||                                               ||'), nl,
 	write('||    Type Enter when you are ready!             ||'), nl,
+	write('||                                               ||'), nl,
+	write('***************************************************'), nl,
+	getEnter.
+
+playerColorScreen(N, Color):-
+	clearScreen,
+	write('***************************************************'), nl,
+	write('||                                               ||'), nl,
+	format('||   Player ~d, the color assigned to you was:    ||', [N]), nl,	
+	write('||                                               ||'), nl,
+	write('||                 '),
+	ansi_format([bold,fg(Color)], ' ~s ', [Color]),
+	(
+		Color = blue -> write('                        ||');
+		Color = green -> write('                       ||');
+		Color = yellow -> write('                      ||');
+		
+		write('                         ||')
+	), nl, 
 	write('||                                               ||'), nl,
 	write('***************************************************'), nl,
 	getEnter.

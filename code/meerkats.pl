@@ -1,6 +1,7 @@
 
 :- use_module(library(random)).
 :- use_module(library(system)).
+:- use_module(library(lists)).
 :- include('utilities.pl').
 :- include('menus.pl').
 :- include('game.pl').

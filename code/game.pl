@@ -1,29 +1,36 @@
 availableColors([blue, red, green, yellow]).
 
 playGame(NumberPlayers):- 	availableColors(Colors),
-							assignPlayerColor(NumberPlayers, Info, Colors, 1),
-							write(Info),
+							N is 1,
+							assignPlayerColor(NumberPlayers, Info, Colors, N,ResultInfo),nl,
+							format('NumberPlayers: ~d', [NumberPlayers]), nl,
+							write('List: '), write(ResultInfo),nl,
+							write('Colors: '),
+							write(Colors),nl,
+							write(N),nl,
 							write('sair assign'), nl,
 							length(Info, Length),
 							format('length of Info: ~d ', [Length]),
 							abort.
 
-assignPlayerColor(NumberPlayers, [_], [_], N):- N > NumberPlayers.
 
-assignPlayerColor(NumberPlayers, Info, Colors, N):-
+
+assignPlayerColor(NumberPlayers, Info, Colors, N,R):-
 										N =< NumberPlayers,
-										printPlayerWaitForEnterScreen(N),
+										%printPlayerWaitForEnterScreen(N),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
-										write(ResultInfo),
 										N1 is N + 1,
-										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
+										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1,R).
+										
+assignPlayerColor(NumberPlayers, Info, _, N,Info):-
+	N > NumberPlayers.
+
 
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),
 										random(0, Length, Index),
 										getColor(Index, Color, Colors, ResultColors),
-										storeInfo(Info, Color, N, ResultInfo),
-										write('feito').
+										storeInfo(Info, Color, N, ResultInfo).
 
 getColor(_, _, [],[]).
 

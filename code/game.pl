@@ -20,23 +20,27 @@ assignPlayerColor(NumberPlayers, Info, Colors, N):-
 										printPlayerWaitForEnterScreen(N),
 										write('la vai mais um'),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
+										write('deu o sortxi'),
 										N1 is N + 1,
 										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
 
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),
+										write('fez length'),
 										random(0, Length, Index),
+										write('fez random'),
+										format(' ~d bitch  ', [Index]),
 										getColor(Index, Color, Colors, ResultColors),
+										write('fez getColor'),
 										storeInfo(Info, Color, N, ResultInfo).
 
-getColor(0, Head, [Head | Tail], ResultColors):-
-										append(ResultColors, Tail, Result),
-										ResultColors is Result.
+getColor(_, _, [],[]).
 
-getColor(Index, Color, [CHead | CTail], ResultColors):-
-										NewIndex is Index -1,
-										append(ResultColors, CHead, Result),
-										getColor(NewIndex, Color, CTail, Result).
+getColor(Index, Color, [H|A], [H|NA]):- Index > 0,
+									    Nindex is Index-1,
+									    getColor(Nindex,Color,A,NA).
+
+getColor(0, Color, [Color|A], A).
 
 storeInfo(Info, Color, N, ResultInfo):- append(Info, [N, Color], ResultInfo).
 

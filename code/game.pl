@@ -1,38 +1,29 @@
 availableColors([blue, red, green, yellow]).
-playersInfo([]).
 
 playGame(NumberPlayers):- 	availableColors(Colors),
-							playersInfo(Info),
 							assignPlayerColor(NumberPlayers, Info, Colors, 1),
-							printInfo(Info, NumberPlayers),
+							write(Info),
+							write('sair assign'), nl,
+							length(Info, Length),
+							format('length of Info: ~d ', [Length]),
 							abort.
 
-printInfo([_], 0).
-
-printInfo([[Head|Tail] | MainTail], Number):- write(Head), write(' '), write(Tail), nl,
-										NewNumber is Number - 1,
-										printInfo(MainTail, NewNumber).
-
-
-assignPlayerColor(X, _, _, Y):- =(X,Y), write('shit').
+assignPlayerColor(NumberPlayers, [_], [_], N):- N > NumberPlayers.
 
 assignPlayerColor(NumberPlayers, Info, Colors, N):-
+										N =< NumberPlayers,
 										printPlayerWaitForEnterScreen(N),
-										write('la vai mais um'),
 										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
-										write('deu o sortxi'),
+										write(ResultInfo),
 										N1 is N + 1,
 										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1).
 
 sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
 										length(Colors, Length),
-										write('fez length'),
 										random(0, Length, Index),
-										write('fez random'),
-										format(' ~d bitch  ', [Index]),
 										getColor(Index, Color, Colors, ResultColors),
-										write('fez getColor'),
-										storeInfo(Info, Color, N, ResultInfo).
+										storeInfo(Info, Color, N, ResultInfo),
+										write('feito').
 
 getColor(_, _, [],[]).
 
@@ -42,7 +33,7 @@ getColor(Index, Color, [H|A], [H|NA]):- Index > 0,
 
 getColor(0, Color, [Color|A], A).
 
-storeInfo(Info, Color, N, ResultInfo):- append(Info, [N, Color], ResultInfo).
+storeInfo(Info, Color, N, ResultInfo):- append(Info, [[N | Color]], ResultInfo).
 
 
 
@@ -61,7 +52,7 @@ printPlayerWaitForEnterScreen(N):-
 	write('||    Type Enter when you are ready!             ||'), nl,
 	write('||                                               ||'), nl,
 	write('***************************************************'), nl,
-	getEnter, write('deuEnter').
+	getEnter.
 
 play:- 
 	logicalBoard(LogicalBoard),

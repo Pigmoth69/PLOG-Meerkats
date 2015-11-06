@@ -2,7 +2,20 @@ availableColors([blue, red, green, yellow]).
 
 playGame(NumberPlayers):- 	availableColors(Colors),
 							N is 1,
-							assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo).
+							assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo),
+							getEnter,
+							write('Number of players: '),
+							write(NumberPlayers),nl,
+							write('Info: '),
+							write(Info),nl,
+							write('Colors: '),
+							write(Colors),nl,
+							write('N: '),
+							write(N),nl,
+							write('RInfo: '),
+							write(RInfo),nl,
+							getEnter.
+							
 
 							
 
@@ -73,60 +86,51 @@ playerColorScreen(N, Color):-
 	write('***************************************************'), nl,
 	getEnter.
 
-play():- 
+play():-  
 	logicalBoard(LogicalBoard),
 	displayBoard(Board),
-	drawBoard(Board, LogicalBoard),
-	getEnter,
-	validMove(LogicalBoard,RowIdentifier,RowPos),
-	write('sai!'),nl,
-	abort,
-	moveStone(red,LogicalBoard,X,Y,ResultBoard),
-	write(ResultBoard),nl,
-	getEnter,
-	%-------------------------------------------------------
-	drawBoard(Board, ResultBoard),
-	getEnter.
+	makePlay(Board,LogicalBoard,Player).
 	
+makePlay(Board,LogicalBoard,Player):-
+	drawBoard(Board, LogicalBoard),
+	getValidMove(LogicalBoard,RowIdentifier,RowPos),
+	moveStone(red,LogicalBoard,RowIdentifier,RowPos,ResultBoard),
+	makePlay(Board,ResultBoard,Player).
+	
+	
+	
+getCoords(X,Y):-
+		write('Get Coord1: '),nl,
+		getInteger(X),
+		write('Get Coord2: '),nl,
+		getInteger(Y).
+	
+checkCoords(X,Y,Res):-
+				X > 10 -> write('Invalid Coord!'),nl,Res = 'invalid';
+				X < 0 -> write('Invalid Coords!'),nl,Res = 'invalid';
+				Y > 10 -> write('Invalid Coord!'),nl,Res = 'invalid';
+				Y < 0 -> write('Invalid Coords!'),nl,Res = 'invalid';
+				Res = valid.
+				
+/*Esta funcção vê se as coordenadas são inteiros válidos entre 1 e 9*/	
+getValidCoords(X1,Y1):-
+				getCoords(X,Y),
+				checkCoords(X,Y,Res),
+				X1 is X, Y1 is Y,
+				Res == valid -> true;
+				getValidCoords(X1,Y1). 
 							
 
 
-getPlayCoord(Message,RowIdentifier):-
-					getInteger(X),write(X),nl,nl,
-					(
-						RowIdentifier is X	,
-						X > 10 -> format('Invalid1 ~s !', [Message]),nl,getPlayCoord(Message,_);
-						X < 0 -> format('Invalid2 ~s !', [Message]),nl,getPlayCoord(Message,_)
-						
-					).		
 	
-
-getPlayCoord(_,1).
-getPlayCoord(_,2).
-getPlayCoord(_,3).
-getPlayCoord(_,4).
-getPlayCoord(_,5).
-getPlayCoord(_,6).
-getPlayCoord(_,7).
-getPlayCoord(_,8).
-getPlayCoord(_,9).				
-					
+/*Esta função só termina quando existe um movimento válido*/	
+getValidMove(Board,RowIdentifier,RowPos):-
+	getValidCoords(Coord1,Coord2),
+	getInfo(Coord1,Coord2,Info,Board),
+	Info == empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;
+	getValidMove(Board,_,_).
 	
-/*validMove(Board,RowIdentifier,RowPos):-
-	write('Insert the row identifier: '),nl,
-	getInteger(X),!,
-	(
-		X < 1 -> write('Invalid Row Identifier!'),nl,validMove(Board,RowIdentifier,RowPos);
-		X > 10 -> write('Invalid Row Identifier!'),nl,validMove(Board,RowIdentifier,RowPos);
-		write('Insert the row Position: '),nl,
-		
-		getInteger(Y),
-		(
-		Y < 1 -> write('Invalid Row Position!'),nl,validMove(Board,RowIdentifier,RowPos);
-		Y > 10 -> write('Invalid Row Position!'),nl,validMove(Board,RowIdentifier,RowPos)
-		),
-		
-	),RowIdentifier is X,RowPos is Y.*/
+	
 	
 	
 moveStone(Color,LogicalBoard,RowIdentifier,RowPos,ResultBoard):-

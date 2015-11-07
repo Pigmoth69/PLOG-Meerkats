@@ -12,7 +12,6 @@ playGame(NumberPlayers):- 	availableColors(Colors),
 							write(N),write(' player in game! Good luck!'),nl,
 							getEnter,
 							gameStart(RInfo,Winner),
-							write('ola2'),
 							getEnter.
 							/*Esta RInfo é uma lista com os jogadores!*/
 							
@@ -86,6 +85,9 @@ playerColorScreen(N, Color):-
 	write('***************************************************'), nl,
 	getEnter.
 
+	
+	
+
 gameStart(Players,Winner):-  
 	logicalBoard(LogicalBoard),
 	displayBoard(Board),
@@ -107,10 +109,6 @@ startPlaying(Board,Stones,LogicalBoard,Players,Winner):-
 	/*---CODE--*/
 	/*Joga uma vez completa com todos os jogadores!*/
 	playRound(Board,Stones,LogicalBoard,Players,ResultBoard,RemainingStones),
-	/*Este board não está a pintar!*/
-	resultBoard(0,ResultBoard),
-	remainingStones(0,RemainingStones),
-	getEnter,
 	startPlaying(Board,RemainingStones,ResultBoard,Players,-1).
 	
 	
@@ -118,24 +116,63 @@ startPlaying(Board,Stones,LogicalBoard,Players,Winner):-
 	
 
 /*Faz uma jogada! Retornando o tabuleiro atual e as pedras restantes*/
-playRound(_,Stones,LogicalBoard,[],ResultBoard,RemainingStones):-write('cenas'),
-																retract(resultBoard(_,_)),
-																assert(resultBoard(0,LogicalBoard)),
-																resultBoard(0,L),
-																write(LogicalBoard),nl,!. 
+playRound(_,Stones,LogicalBoard,[],LogicalBoard,Stones):-write('cenas'). 
 	
-playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],_,_):-	
+playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],ResultBoard,RemainingStones):-	
 											drawBoard(Board, LogicalBoard),
 											format('It is Player ~d turn!)', [H]), nl,
-											withdrawStone(Stones,RemainingStones,ChoosedStone),
+											withdrawStone(Stones,RemainingStones1,ChoosedStone),
 											getValidMove(LogicalBoard,RowIdentifier,RowPos),
-											write('ceinhas1'),nl,
-											moveStone(ChoosedStone,LogicalBoard,RowIdentifier,RowPos,ResultBoard),
-											write('ceinhas2'),nl,
-											/*movimentar uma peça à escolha!*/
-											playRound(Board,RemainingStones,ResultBoard,Tail,_,_),!,
-											write('1'),nl.
-											
+											moveStone(ChoosedStone,LogicalBoard,RowIdentifier,RowPos,ResultBoard1),
+											drawBoard(Board, ResultBoard1),
+											dragStone(ResultBoard1,RowIdentifier,RowPos,FinalBoard),
+											playRound(Board,RemainingStones1,FinalBoard,Tail,ResultBoard,RemainingStones).	
+
+		
+/**********************************************************************************************************************************/
+		
+
+/*Message = valid*/
+/*
+C1 is abs(FinalCoord1 - InitialCoord1),
+																				C2 is abs(FinalCoord2 - InitialCoord2),
+																				(
+																				C1 > 1 -> Message = invalid;
+																				C1 < 0 -> Message = invalid;
+																				C2 > 1 -> Message = invalid;
+																				C2 < 0 -> Message = invalid;
+																				
+																				).
+
+*/
+%chackDrag()
+
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,Direction,Message):-
+																		validCell(InitialCoord1, InitialCoord2),
+																		
+
+
+
+
+
+																				
+																				
+/*Message = valid ou invalid*/	
+
+
+
+dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
+										write('What stone do you want to move?'),nl,
+										getValidStoneMove(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
+										write('Where do you want to move it?'),nl,
+										getValidMove(LogicalBoard,Final1,Final2),
+										checkDrag(LogicalBoard,Initial1,Initial2,Message),
+										Message == valid -> getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),moveStone(Stone,Res,Final1,Final2,ResBoard), ResultBoard = ResBoard;
+										dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard).
+	
+/********************************************************/
+	
+	
 	
 chooseStone(ChoosedStone):-
 												write('Write the stone you want to play!'),nl,
@@ -147,13 +184,6 @@ chooseStone(ChoosedStone):-
 												StoneID == 4 ->  ChoosedStone = yellow;
 												write('Invalid stone name!'),nl,
 												chooseStone(ChoosedStone)).
-												
-try():-	availableStonesTEST(Stones),
-		withdrawStone(Stones,RemainingStones),
-		write(RemainingStones). 
-		
-
-	
 	
 		
 								
@@ -168,7 +198,7 @@ withdrawStone(Stones,RemainingStones,StoneColor):-
 
 /*Vê o numero de peças correspondentes a uma cor*/
 /*getStoneNumber(Stones,ChoosedStone,Number)*/
-getStoneNumber([[H|T]|Tail],ChoosedStone,Number):- 
+getStoneNumber([[_|T]|Tail],ChoosedStone,Number):- 
 												T \= ChoosedStone,
 												getStoneNumber(Tail,ChoosedStone,Number).
 
@@ -188,11 +218,11 @@ setStoneNumber([[H|A]|Tail],ChoosedStone,Number,[[H|A]|NA]):-
 	ChoosedStone \= A,
 	setStoneNumber(Tail,ChoosedStone,Number,NA).
 	
-setStoneNumber([[H|A]|Tail],ChoosedStone,Number,[[Number|A]|Tail]).
+setStoneNumber([[_|A]|Tail],_,Number,[[Number|A]|Tail]).
 
 
 		
-												
+/*-------------------------------------------------------------------------------------------*/											
 
 
 	
@@ -227,11 +257,45 @@ getValidMove(Board,RowIdentifier,RowPos):-
 	write('Valid RowPosPos: '),write(Coord2),nl,
 	getInfo(Coord1,Coord2,Info,Board),
 	Info == empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;
-	getValidMove(Board,_,_).
+	getValidMove(Board,RowIdentifier,RowPos).
 	
 	
+/*Ve se o que está selecionado é uma peça*/	
+getValidStoneMove(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos):-
+	getNotEqualCoords(PlayedStoneCoord1,PlayedStoneCoord2,Coord1,Coord2),
+	write('Valid RowIdentifier: '),write(Coord1),nl,
+	write('Valid RowPosPos: '),write(Coord2),nl,
+	getInfo(Coord1,Coord2,Info,Board),
 	
-	
+	Info \= empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;
+	write('Not a stone!'),nl,
+	getValidMove(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos).	
+/*-------------------------------------------------------------------------------------------*/											
+
+getNotEqualCoords(Initial1,Initial2,ResCoord1,ResCoord2):-
+											getValidCoords(C1,C2),
+											compCoords(Initial1,Initial2,C1,C2,M),
+											M == notEqual ->write('ola'),nl, ResCoord1 is C1,ResCoord2 is C2;
+											write('Cant move the stone you just played!'),nl,
+											getNotEqualCoords(Initial1,Initial2,ResCoord1,ResCoord2).
+											
+
+											
+compCoords(X1,_,X2,_,M):-
+						X1 \= X2,
+						M = notEqual.		
+compCoords(_,Y1,_,Y2,M):-
+						Y1 \= Y2,
+						M = notEqual.						
+											
+compCoords(X1,Y1,X2,Y2,M):-
+						X1 == X2,
+						Y1 == Y2,
+						M = equal.
+							
+
+
+
 moveStone(Color,LogicalBoard,RowIdentifier,RowPos,ResultBoard):-
 																getBoardRow(LogicalBoard,RowIdentifier,Row),
 																changeBoardRow(Row,RowPos,Color,ResRow),
@@ -296,7 +360,7 @@ logicalBoard([
 	            [empty, empty, empty, empty, empty],
 	         [empty, empty, empty, empty, empty, empty],
 	      [empty, empty, empty, empty, empty, empty, empty],
-	   [empty, empty, empty, empty, empty, empty, empty, empty],
+	   [empty, empty, empty, red, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],
 	      [empty, empty, empty, empty, empty, empty, empty],

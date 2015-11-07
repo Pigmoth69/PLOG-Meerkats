@@ -1,20 +1,20 @@
 availableColors([blue, red, green, yellow]).
+availableStones([[15|blue],[15|red],[15|green],[15|yellow]]).
+availableStonesTEST([[11|blue],[12|red],[0|green],[14|yellow]]). 
+dynamic resultBoard/2.
+dynamic remainingStones/2.
+
 
 playGame(NumberPlayers):- 	availableColors(Colors),
 							N is 1,
 							assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo),
+							write('Game will start after you press ENTER! There are '),
+							write(N),write(' player in game! Good luck!'),nl,
 							getEnter,
-							write('Number of players: '),
-							write(NumberPlayers),nl,
-							write('Info: '),
-							write(Info),nl,
-							write('Colors: '),
-							write(Colors),nl,
-							write('N: '),
-							write(N),nl,
-							write('RInfo: '),
-							write(RInfo),nl,
+							gameStart(RInfo,Winner),
+							write('ola2'),
 							getEnter.
+							/*Esta RInfo é uma lista com os jogadores!*/
 							
 
 							
@@ -86,18 +86,115 @@ playerColorScreen(N, Color):-
 	write('***************************************************'), nl,
 	getEnter.
 
-play():-  
+gameStart(Players,Winner):-  
 	logicalBoard(LogicalBoard),
 	displayBoard(Board),
-	makePlay(Board,LogicalBoard,Player).
+	availableStones(Stones),
+	startPlaying(Board,Stones,LogicalBoard,Players,-1).
 	
-makePlay(Board,LogicalBoard,Player):-
-	drawBoard(Board, LogicalBoard),
-	getValidMove(LogicalBoard,RowIdentifier,RowPos),
-	moveStone(red,LogicalBoard,RowIdentifier,RowPos,ResultBoard),
-	makePlay(Board,ResultBoard,Player).
+showBoard():-
+			logicalBoard(LogicalBoard),
+			displayBoard(Board),
+			drawBoard(Board,LogicalBoard).
+
+startPlaying(_,_,_,_,1).
+startPlaying(_,_,_,_,2).
+startPlaying(_,_,_,_,3).
+startPlaying(_,_,_,_,4).
+		
+startPlaying(Board,Stones,LogicalBoard,Players,Winner):-
+	/*Ver se todas as peças foram jogadas ou se existe um grupo de 15!*/
+	/*---CODE--*/
+	/*Joga uma vez completa com todos os jogadores!*/
+	playRound(Board,Stones,LogicalBoard,Players,ResultBoard,RemainingStones),
+	/*Este board não está a pintar!*/
+	resultBoard(0,ResultBoard),
+	remainingStones(0,RemainingStones),
+	getEnter,
+	startPlaying(Board,RemainingStones,ResultBoard,Players,-1).
 	
 	
+	
+	
+
+/*Faz uma jogada! Retornando o tabuleiro atual e as pedras restantes*/
+playRound(_,Stones,LogicalBoard,[],ResultBoard,RemainingStones):-write('cenas'),
+																retract(resultBoard(_,_)),
+																assert(resultBoard(0,LogicalBoard)),
+																resultBoard(0,L),
+																write(LogicalBoard),nl,!. 
+	
+playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],_,_):-	
+											drawBoard(Board, LogicalBoard),
+											format('It is Player ~d turn!)', [H]), nl,
+											withdrawStone(Stones,RemainingStones,ChoosedStone),
+											getValidMove(LogicalBoard,RowIdentifier,RowPos),
+											write('ceinhas1'),nl,
+											moveStone(ChoosedStone,LogicalBoard,RowIdentifier,RowPos,ResultBoard),
+											write('ceinhas2'),nl,
+											/*movimentar uma peça à escolha!*/
+											playRound(Board,RemainingStones,ResultBoard,Tail,_,_),!,
+											write('1'),nl.
+											
+	
+chooseStone(ChoosedStone):-
+												write('Write the stone you want to play!'),nl,
+												write('1 -> red | 2 -> green | 3 -> blue | 4 -> yellow'),nl,
+												getInteger(StoneID),(
+												StoneID == 1 ->  ChoosedStone = red;
+												StoneID == 2 ->  ChoosedStone = green;
+												StoneID == 3 ->  ChoosedStone = blue;
+												StoneID == 4 ->  ChoosedStone = yellow;
+												write('Invalid stone name!'),nl,
+												chooseStone(ChoosedStone)).
+												
+try():-	availableStonesTEST(Stones),
+		withdrawStone(Stones,RemainingStones),
+		write(RemainingStones). 
+		
+
+	
+	
+		
+								
+/*Faz a jogava correspondente a retirar uma peça das Stones que ainda restam e "retorna" as Stones que restam*/
+withdrawStone(Stones,RemainingStones,StoneColor):-	
+									chooseStone(ChoosedStone),
+									getStoneNumber(Stones,ChoosedStone,Number),
+									Number > 0 ->write('Stone withdraw!'),nl, NewNum is Number -1,setStoneNumber(Stones,ChoosedStone,NewNum,RemainingStones),StoneColor = ChoosedStone;
+									write('There are no more of those stones! Choose another one!'),nl,
+									withdrawStone(Stones,RemainingStones).
+									
+
+/*Vê o numero de peças correspondentes a uma cor*/
+/*getStoneNumber(Stones,ChoosedStone,Number)*/
+getStoneNumber([[H|T]|Tail],ChoosedStone,Number):- 
+												T \= ChoosedStone,
+												getStoneNumber(Tail,ChoosedStone,Number).
+
+												
+getStoneNumber([[H|T]|_],ChoosedStone,Number):-  
+												T == ChoosedStone,
+												Number = H.
+												
+												
+												
+			
+/*Faz set ao numero de peças da cor*/
+/*setStoneNumber(Stones,ChoosedStone,Number,RemainingStones)*/	
+
+setStoneNumber([],_,_,[]).
+setStoneNumber([[H|A]|Tail],ChoosedStone,Number,[[H|A]|NA]):- 
+	ChoosedStone \= A,
+	setStoneNumber(Tail,ChoosedStone,Number,NA).
+	
+setStoneNumber([[H|A]|Tail],ChoosedStone,Number,[[Number|A]|Tail]).
+
+
+		
+												
+
+
 	
 getCoords(X,Y):-
 		write('Get Coord1: '),nl,
@@ -126,6 +223,8 @@ getValidCoords(X1,Y1):-
 /*Esta função só termina quando existe um movimento válido*/	
 getValidMove(Board,RowIdentifier,RowPos):-
 	getValidCoords(Coord1,Coord2),
+	write('Valid RowIdentifier: '),write(Coord1),nl,
+	write('Valid RowPosPos: '),write(Coord2),nl,
 	getInfo(Coord1,Coord2,Info,Board),
 	Info == empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;
 	getValidMove(Board,_,_).

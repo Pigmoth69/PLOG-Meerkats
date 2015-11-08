@@ -9,7 +9,7 @@ playGame(NumberPlayers,NumberBots):- 	availableColors(Colors),
 										assignPlayerColor(Humans, ResultColors, 1, FinalPlayersInfo,_),
 										append(FinalPlayersInfo, FinalBOTsInfo, FinalInfo),
 										displayPrepareForTheGame(NumberPlayers),
-										gameStart(FinalInfo,Winner).
+										gameStart(FinalInfo).
 							
 displayPrepareForTheGame(N):-
 	clearScreen,
@@ -105,7 +105,7 @@ playerColorScreen(N, Color):-
 	
 	
 
-gameStart(Players,Winner):- logicalBoard(LogicalBoard),
+gameStart(Players):- logicalBoard(LogicalBoard),
 							displayBoard(Board),
 							availableStones(Stones),
 							startPlaying(Board,Stones,LogicalBoard,Players,Winner, 1),
@@ -215,10 +215,10 @@ getWinningOnDrop(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,Rema
 		).
 
 
-getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,ID,_,_):-
-			winner(FinalBoard, [H|_], Area), write('check'), getPlayer(Players,H,ID), write('derp'), write(Area), write(ID), ID \= 0, Area == 15.
+getWinningOnDrag(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
+			winner(FinalBoard, [H|_], Area), getPlayer(Players,H,ID), ID \= 0, Area == 15.
 					
-getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,ID,_,_):-playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner), !.
+getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,_,_):-playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner), !.
 									
 											
 %getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):- 
@@ -240,13 +240,13 @@ getTotalStoneNumber([[H|_]|Tail],Sum):-
 
 
 
-checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,Direction,NumberCells,Message,FinalRow,FinalCol):- ( 
-																					Direction == 1 -> checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
-																					Direction == 2 -> checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
-																					Direction == 3 -> checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
-																					Direction == 4 -> checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
-																					Direction == 5 -> checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
-																					Direction == 6 -> checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,Direction,NumberCells,valid,FinalRow,FinalCol):- ( 
+																					Direction == 1 -> checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
+																					Direction == 2 -> checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
+																					Direction == 3 -> checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
+																					Direction == 4 -> checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
+																					Direction == 5 -> checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
+																					Direction == 6 -> checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol)
 																					).
 checkDrag(_,_,_,_,_,invalid,_,_).
 																		
@@ -452,8 +452,6 @@ getValidCoords(X,Y):-
 /*Esta função só termina quando existe um movimento válido*/	
 getEmptyCell(Board,RowIdentifier,RowPos):-
 	getValidCoords(Coord1,Coord2),
-	write('Valid RowIdentifier: '),write(Coord1),nl,
-	write('Valid RowPosPos: '),write(Coord2),nl,
 	getInfo(Coord1,Coord2,Info,Board),
 	Info == empty -> RowIdentifier is Coord1,RowPos is Coord2;
 	getEmptyCell(Board,RowIdentifier,RowPos).
@@ -462,8 +460,6 @@ getEmptyCell(Board,RowIdentifier,RowPos):-
 /*Ve se o que está selecionado é uma peça*/	
 getStoneCell(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos):-
 	getNotEqualCoords(PlayedStoneCoord1,PlayedStoneCoord2,Coord1,Coord2),
-	write('Valid RowIdentifier: '),write(Coord1),nl,
-	write('Valid RowPosPos: '),write(Coord2),nl,
 	getInfo(Coord1,Coord2,Info,Board),
 	
 	Info \= empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;

@@ -1,21 +1,26 @@
 availableColors([blue, red, green, yellow]).
 availableStones([[15|blue],[15|red],[15|green],[15|yellow]]).
-availableStonesTEST([[11|blue],[12|red],[0|green],[14|yellow]]). 
-dynamic resultBoard/2.
-dynamic remainingStones/2.
+playerInfo([]).
 
 
 playGame(NumberPlayers):- 	availableColors(Colors),
 							N is 1,
+							playerInfo(Info),
 							assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo),
-							write('Game will start after you press ENTER! There are '),
-							write(N),write(' player in game! Good luck!'),nl,
-							getEnter,
-							gameStart(RInfo,Winner),
-							getEnter.
+							displayPrepareForTheGame(NumberPlayers),
+							gameStart(RInfo,Winner).
 							/*Esta RInfo é uma lista com os jogadores!*/
 							
-
+displayPrepareForTheGame(N):-
+	clearScreen,
+	write('***************************************************'), nl,
+	write('||                                               ||'), nl,
+	write('||   Game will start after you press ENTER!      ||'), nl,	
+	write('||                                               ||'), nl,
+	format('||    There are ~d player in game! Good luck!     ||', [N]), nl,
+	write('||                                               ||'), nl,
+	write('***************************************************'), nl,
+	getEnter.
 							
 
 
@@ -88,12 +93,12 @@ playerColorScreen(N, Color):-
 	
 	
 
-gameStart(Players,Winner):-  
-	logicalBoard(LogicalBoard),
-	displayBoard(Board),
-	availableStones(Stones),
-	startPlaying(Board,Stones,LogicalBoard,Players,-1).
-	
+gameStart(Players,Winner):- logicalBoard(LogicalBoard),
+							displayBoard(Board),
+							availableStones(Stones),
+							Winner is -1,
+							startPlaying(Board,Stones,LogicalBoard,Players,Winner, 1).
+
 showBoard():-
 			logicalBoard(LogicalBoard),
 			displayBoard(Board),
@@ -104,70 +109,201 @@ startPlaying(_,_,_,_,2).
 startPlaying(_,_,_,_,3).
 startPlaying(_,_,_,_,4).
 		
-startPlaying(Board,Stones,LogicalBoard,Players,Winner):-
+startPlaying(Board,Stones,LogicalBoard,Players,Winner, Round):-
 	/*Ver se todas as peças foram jogadas ou se existe um grupo de 15!*/
 	/*---CODE--*/
 	/*Joga uma vez completa com todos os jogadores!*/
-	playRound(Board,Stones,LogicalBoard,Players,ResultBoard,RemainingStones),
-	startPlaying(Board,RemainingStones,ResultBoard,Players,-1).
+	playRound(Board,Stones,LogicalBoard,Players,Players,ResultBoard,RemainingStones,Round,Winner),
+
+	startPlaying(Board,RemainingStones,ResultBoard,Players,Winner,2).
 	
 	
-	
-	
+getPlayer([[Id | [Color | []]]], Color, Id).	
+getPlayer([Head | Tail],Color,Player):- getPlayer(Tail, Color, Player).
+
 
 /*Faz uma jogada! Retornando o tabuleiro atual e as pedras restantes*/
-playRound(_,Stones,LogicalBoard,[],LogicalBoard,Stones):-write('cenas'). 
-	
-playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],ResultBoard,RemainingStones):-	
+playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,Winner). 
+
+playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner):-	
 											drawBoard(Board, LogicalBoard),
 											format('It is Player ~d turn!)', [H]), nl,
+											write('qwerty'), nl, getEnter,
 											withdrawStone(Stones,RemainingStones1,ChoosedStone),
-											getValidMove(LogicalBoard,RowIdentifier,RowPos),
-											moveStone(ChoosedStone,LogicalBoard,RowIdentifier,RowPos,ResultBoard1),
-											drawBoard(Board, ResultBoard1),
-											dragStone(ResultBoard1,RowIdentifier,RowPos,FinalBoard),
-											playRound(Board,RemainingStones1,FinalBoard,Tail,ResultBoard,RemainingStones).	
+											getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
+											setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
+											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner).		
 
-		
+playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,2,Winner):-	
+											drawBoard(Board, LogicalBoard),
+											format('It is Player ~d turn!)', [H]), nl,
+											dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1),
+											getWinning(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones,N,Winner,RowIdentifier,RowPos).
+											%playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,N,Winner).	
+
+
+dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1):-
+			withdrawStone(Stones,RemainingStones1,ChoosedStone),
+			getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
+			setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1).
+
+
+
+getWinning(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-
+			winner(FinalBoard, Winner, Area),
+			Area == 15-> write('getwininig'), nl,playRound(_,_,_,[],_,_,_,_,1).
+
+
+getWinning(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-
+											drawBoard(Board, FinalBoard),
+											dragStone(FinalBoard,RowIdentifier,RowPos,FinalBoard1),
+											playRound(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner).
+
+
+
+
+
+
 /**********************************************************************************************************************************/
 		
 
-/*Message = valid*/
-/*
-C1 is abs(FinalCoord1 - InitialCoord1),
-																				C2 is abs(FinalCoord2 - InitialCoord2),
-																				(
-																				C1 > 1 -> Message = invalid;
-																				C1 < 0 -> Message = invalid;
-																				C2 > 1 -> Message = invalid;
-																				C2 < 0 -> Message = invalid;
-																				
-																				).
 
-*/
-%chackDrag()
 
-checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,Direction,Message):-
-																		validCell(InitialCoord1, InitialCoord2),
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,Direction,NumberCells,Message,FinalRow,FinalCol):-	write('cheackDrag'), nl,( 
+																					Direction == 1 -> checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
+																					Direction == 2 -> checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
+																					Direction == 3 -> checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
+																					Direction == 4 -> write('inseriu 4'), nl,checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
+																					Direction == 5 -> checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid;
+																					Direction == 6 -> checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol), Message=valid
+																					).
+checkDrag(_,_,_,_,_,invalid,_,_).
 																		
 
 
+checkDragDiagonalUpLeft(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).
+checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- 	NewRow is InitialCoord1 - 1,
+																									InitialCoord1 < 6,
+																									NewCol is InitialCoord2 - 1,
+																									validCell(NewRow,NewCol), !,
+																									getInfo(NewRow, NewCol, Info, LogicalBoard),
+																									Info == empty, !,
+																									NewNumberCells is NumberCells - 1,
+																									checkDragDiagonalUpLeft(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- 	NewRow is InitialCoord1 - 1,
+																									InitialCoord1 > 5,
+																									NewCol is InitialCoord2,
+																									validCell(NewRow,NewCol), !,
+																									getInfo(NewRow, NewCol, Info, LogicalBoard),
+																									Info == empty, !,
+																									NewNumberCells is NumberCells - 1,
+																									checkDragDiagonalUpLeft(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
 
 
+checkDragDiagonalUpRight(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).
+checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- 	NewRow is InitialCoord1 - 1,
+																									InitialCoord1 > 5,
+																									NewCol is InitialCoord2 + 1,
+																								 	validCell(NewRow,NewCol), !,
+																								 	getInfo(NewRow,NewCol,Info,LogicalBoard),
+																								 	Info == empty, !,
+																								 	NewNumberCells is NumberCells - 1,
+																								 	checkDragDiagonalUpRight(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- 	NewRow is InitialCoord1 - 1,
+																									InitialCoord1 < 6,
+																									NewCol is InitialCoord2,
+																								 	validCell(NewRow,NewCol), !,
+																								 	getInfo(NewRow,NewCol,Info,LogicalBoard),
+																								 	Info == empty, !,
+																								 	NewNumberCells is NumberCells - 1,
+																								 	checkDragDiagonalUpRight(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+
+checkDragRight(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).
+checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):-	NewCol is InitialCoord2 + 1,
+																				validCell(InitialCoord1,NewCol), !,
+																				getInfo(InitialCoord1,NewCol,Info,LogicalBoard),
+																				Info == empty, !,
+																				NewNumberCells is NumberCells - 1,
+																				checkDragRight(LogicalBoard,InitialCoord1,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+
+checkDragDiagonalDownRight(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).
+checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- 	NewRow is InitialCoord1 + 1,
+																										InitialCoord1 < 5, 
+																										NewCol is InitialCoord2+1,
+																										write(NewCol),nl,
+																				 						validCell(NewRow,InitialCoord2), !,
+																					 					getInfo(NewRow,NewCol,Info,LogicalBoard),
+																					 					Info == empty, !,
+																				 						NewNumberCells is NumberCells - 1,
+																				 						checkDragDiagonalDownRight(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+
+checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- 	NewRow is InitialCoord1 + 1,
+																										InitialCoord1 > 4,
+																										NewCol is InitialCoord2,
+																										write(NewCol),nl,
+																				 						validCell(NewRow,InitialCoord2), !,
+																					 					getInfo(NewRow,NewCol,Info,LogicalBoard),
+																					 					Info == empty, !,
+																				 						NewNumberCells is NumberCells - 1,
+																				 						checkDragDiagonalDownRight(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+checkDragDiagonalDownLeft(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).
+checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- NewRow is InitialCoord1 + 1,
+																									InitialCoord1 > 4,
+																									NewCol is InitialCoord2 - 1,
+																									validCell(NewRow,NewCol), !,
+																									getInfo(NewRow, NewCol, Info, LogicalBoard),
+																									Info == empty, !,
+																									NewNumberCells is NumberCells - 1,
+																									checkDragDiagonalDownLeft(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):- NewRow is InitialCoord1 + 1,
+																									InitialCoord1 < 5,
+																									NewCol is InitialCoord2,
+																									validCell(NewRow,NewCol), !,
+																									getInfo(NewRow, NewCol, Info, LogicalBoard),
+																									Info == empty, !,
+																									NewNumberCells is NumberCells - 1,
+																									checkDragDiagonalDownLeft(LogicalBoard,NewRow,NewCol,NewNumberCells,FinalRow,FinalCol).
+
+
+checkDragLeft(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).
+checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol):-	NewCol is InitialCoord2 - 1,
+																				validCell(InitialCoord1,NewCol), !,
+																				getInfo(InitialCoord1,NewCol,Info,LogicalBoard),
+																				Info == empty, !,
+																				NewNumberCells is NumberCells - 1,
+																				checkDragLeft(LogicalBoard,InitialCoord1,NewCol,NewNumberCells,FinalRow,FinalCol).
 
 																				
 																				
 /*Message = valid ou invalid*/	
 
+displayDirectionsList(Direction, NumberCells):- 	write('1 -> Up-Left     2 -> Up-Right     3 -> Right'),  nl,
+													write('4 -> Down-Right  5 -> Down-Left    6 -> Left'), nl,
+													write('Direction: '), getInteger(Direction), 
+													Direction < 7,
+													Direction > 0,
+													displayGetNumberCells(NumberCells)
+													;
+													nl, write('Invalid Input. Try again'),
+													displayDirectionsList(Direction, NumberCells).
+
+displayGetNumberCells(NumberCells):-	write('Insert the number of cells you want to drag your stone: '), getInteger(NumberCells).
+										
 
 
 dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
 										write('What stone do you want to move?'),nl,
-										getValidStoneMove(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
-										write('Where do you want to move it?'),nl,
-										getValidMove(LogicalBoard,Final1,Final2),
-										checkDrag(LogicalBoard,Initial1,Initial2,Message),
-										Message == valid -> getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),moveStone(Stone,Res,Final1,Final2,ResBoard), ResultBoard = ResBoard;
+										getStoneCell(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
+										displayDirectionsList(Direction, NumberCells),
+										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Message,Final1,Final2),
+										Message == valid -> getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard);
 										dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard).
 	
 /********************************************************/
@@ -175,20 +311,22 @@ dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
 	
 	
 chooseStone(ChoosedStone):-
-												write('Write the stone you want to play!'),nl,
-												write('1 -> red | 2 -> green | 3 -> blue | 4 -> yellow'),nl,
-												getInteger(StoneID),(
-												StoneID == 1 ->  ChoosedStone = red;
-												StoneID == 2 ->  ChoosedStone = green;
-												StoneID == 3 ->  ChoosedStone = blue;
-												StoneID == 4 ->  ChoosedStone = yellow;
-												write('Invalid stone name!'),nl,
-												chooseStone(ChoosedStone)).
+							write('Write the stone you want to play!'),nl,
+							write('1 -> red | 2 -> green | 3 -> blue | 4 -> yellow'),nl,
+							getInteger(StoneID),(
+							StoneID == 1 ->  ChoosedStone = red;
+							StoneID == 2 ->  ChoosedStone = green;
+							StoneID == 3 ->  ChoosedStone = blue;
+							StoneID == 4 ->  ChoosedStone = yellow;
+							write('Invalid stone name!'),nl,
+							chooseStone(ChoosedStone)).
 	
-		
+displayRemainingStones([[Blue | _] | [[Red | _] | [[Green | _] | [[Yellow| _]]]]]):- format('Remaing stones: ~d Blues, ~d Reds, ~d Greens and ~d Yellows.', [Blue, Red, Green, Yellow]), nl.
+
 								
 /*Faz a jogava correspondente a retirar uma peça das Stones que ainda restam e "retorna" as Stones que restam*/
 withdrawStone(Stones,RemainingStones,StoneColor):-	
+									displayRemainingStones(Stones),
 									chooseStone(ChoosedStone),
 									getStoneNumber(Stones,ChoosedStone,Number),
 									Number > 0 ->write('Stone withdraw!'),nl, NewNum is Number -1,setStoneNumber(Stones,ChoosedStone,NewNum,RemainingStones),StoneColor = ChoosedStone;
@@ -231,37 +369,29 @@ getCoords(X,Y):-
 		getInteger(X),
 		write('Get Coord2: '),nl,
 		getInteger(Y).
-	
-checkCoords(X,Y,Res):-
-				X > 10 -> write('Invalid Coord!'),nl,Res = 'invalid';
-				X < 0 -> write('Invalid Coords!'),nl,Res = 'invalid';
-				Y > 10 -> write('Invalid Coord!'),nl,Res = 'invalid';
-				Y < 0 -> write('Invalid Coords!'),nl,Res = 'invalid';
-				Res = valid.
-				
+					
 /*Esta funcção vê se as coordenadas são inteiros válidos entre 1 e 9*/	
-getValidCoords(X1,Y1):-
+getValidCoords(X,Y):-
 				getCoords(X,Y),
-				checkCoords(X,Y,Res),
-				X1 is X, Y1 is Y,
-				Res == valid -> true;
-				getValidCoords(X1,Y1). 
+				validCell(X,Y);
+				write('Coordinates inserted are not valid!!! Please try again.'), nl,
+				getValidCoords(X,Y). 
 							
 
 
-	
+
 /*Esta função só termina quando existe um movimento válido*/	
-getValidMove(Board,RowIdentifier,RowPos):-
+getEmptyCell(Board,RowIdentifier,RowPos):-
 	getValidCoords(Coord1,Coord2),
 	write('Valid RowIdentifier: '),write(Coord1),nl,
 	write('Valid RowPosPos: '),write(Coord2),nl,
 	getInfo(Coord1,Coord2,Info,Board),
 	Info == empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;
-	getValidMove(Board,RowIdentifier,RowPos).
+	getEmptyCell(Board,RowIdentifier,RowPos).
 	
 	
 /*Ve se o que está selecionado é uma peça*/	
-getValidStoneMove(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos):-
+getStoneCell(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos):-
 	getNotEqualCoords(PlayedStoneCoord1,PlayedStoneCoord2,Coord1,Coord2),
 	write('Valid RowIdentifier: '),write(Coord1),nl,
 	write('Valid RowPosPos: '),write(Coord2),nl,
@@ -269,13 +399,13 @@ getValidStoneMove(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos
 	
 	Info \= empty ->write('Valid move!'),nl, RowIdentifier is Coord1,RowPos is Coord2;
 	write('Not a stone!'),nl,
-	getValidMove(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos).	
+	getStoneCell(Board,PlayedStoneCoord1,PlayedStoneCoord2,RowIdentifier,RowPos).	
 /*-------------------------------------------------------------------------------------------*/											
 
 getNotEqualCoords(Initial1,Initial2,ResCoord1,ResCoord2):-
 											getValidCoords(C1,C2),
 											compCoords(Initial1,Initial2,C1,C2,M),
-											M == notEqual ->write('ola'),nl, ResCoord1 is C1,ResCoord2 is C2;
+											M == notEqual ->ResCoord1 is C1,ResCoord2 is C2;
 											write('Cant move the stone you just played!'),nl,
 											getNotEqualCoords(Initial1,Initial2,ResCoord1,ResCoord2).
 											
@@ -295,12 +425,6 @@ compCoords(X1,Y1,X2,Y2,M):-
 							
 
 
-
-moveStone(Color,LogicalBoard,RowIdentifier,RowPos,ResultBoard):-
-																getBoardRow(LogicalBoard,RowIdentifier,Row),
-																changeBoardRow(Row,RowPos,Color,ResRow),
-																changeBoard(LogicalBoard,RowIdentifier,ResRow,ResultBoard).
-changeBoard([],_,_,[]).
 changeBoard([H|A],NewRow,Elem,[H|NA]):- 
 	NewRow > 1,
 	Npos is NewRow-1,
@@ -324,27 +448,6 @@ getBoardRow([H|_],1,H).
 	
 	
 
-/*
-moveStone(Color,[[H|T]|Tail],1,RowPos,ResultBoard):-moveStone(Color,[H|T],1,RowPos,ResultBoard).  
-
-moveStone(Color,[[H|T]|Tail],RowIdentifier,RowPos,ResultBoard):-
-											RowIdentifier > 1,
-											N is RowIdentifier - 1,
-											moveStone(Color,Tail,N,RowPos,ResultBoard).
-											
-
-moveStone(Color,[H|T],1,RowPos,[H|T]):-
-									N is RowPos - 1,
-									moveStone(Color,[H|T],0,N,T).
-
-moveStone(Color,[H|T],1,1,[Color|T]).
-										
-
-*/
-
-
-
-
 
 
 
@@ -357,15 +460,15 @@ moveStone(Color,[H|T],1,1,[Color|T]).
 
 
 logicalBoard([
-	            [empty, empty, empty, empty, empty],
+	            [blue, empty, empty, empty, red],
 	         [empty, empty, empty, empty, empty, empty],
 	      [empty, empty, empty, empty, empty, empty, empty],
-	   [empty, empty, empty, red, empty, empty, empty, empty],
+	   [empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],
 	      [empty, empty, empty, empty, empty, empty, empty],
 	         [empty, empty, empty, empty, empty, empty],
-	            [empty, empty, empty, empty, empty]
+	            [yellow, empty, empty, empty, green]
 	]).
 
 displayBoard([
@@ -438,6 +541,58 @@ printTopBorder:- write('           ---------------------').
 
 
 %------------------------------------%
+%-----------Winner Calculator--------%
+%------------------------------------%
+
+
+winner(L, W, A):- 	floodFill(L, R), nl,
+				calculateWinner(R, W, A).
+
+calculateWinner(Result, Winner, AreaResult):-	getMainGroups(Result, 16, Winner, AreaResult), !.
+
+
+
+
+getMainGroups(Result, MaxValue, ColorResult, AreaResult):- 	findMaxAreaValue(Result, MaxValue, AreaResult),	%retorna o valor da maior area ate MaxValue unidades
+												getCorrespondentTeam(Result, FinalResult, AreaResult, X), %retorna lista com as cores com areas da dimensao de AreaResult
+												length(X, Length),
+												(
+													Length > 1 -> NewMax is AreaResult, getMainGroups(FinalResult, NewMax, ColorResult, AreaResult);
+													Length = 1 -> append([], X, ColorResult);
+													Length = 0 -> append([], [], ColorResult)
+												). 
+												
+
+findMaxAreaValue([[_ | [Blue | _]] | [[_ | [Red | _]] | [[_ | [Green| _]] | [[_ | [Yellow |_]]]]]], MaxValue, AreaResult):-	findMax(Blue, MaxValue, 0, RB),
+																															findMax(Red, MaxValue, 0, RR),
+																															findMax(Green, MaxValue, 0, RG),
+																															findMax(Yellow, MaxValue, 0, RY),
+																															findMax([RB, RR, RG, RY], 16, 0, AreaResult).
+
+findMax([], _, Result, Result).
+
+findMax([Head | Tail], MaxValue, Min, Result):- Head > Min,
+												Head < MaxValue,
+												findMax(Tail, MaxValue, Head, Result), !.
+
+
+findMax([_ | Tail], MaxValue, Min, Result):- findMax(Tail, MaxValue, Min, Result), !.
+
+getCorrespondentTeam([], [], _, []).
+
+
+getCorrespondentTeam([Head | Tail] , [Head | FinalResult], AreaResult, [Color | ColorResult]):- checkMember(AreaResult, Head, Color), !, 
+																								getCorrespondentTeam(Tail, FinalResult, AreaResult, ColorResult), !.
+
+getCorrespondentTeam([[Color | [_]] | Tail] , [[Color | [[]]] | FinalResult], AreaResult, ColorResult):- 	getCorrespondentTeam(Tail, FinalResult, AreaResult, ColorResult), !.
+
+checkMember(Value, [Result | [Tail | _]], Result):- member(Value, Tail).
+
+
+
+
+
+%------------------------------------%
 %-------------FloodFill--------------%
 %------------------------------------%
 
@@ -454,12 +609,12 @@ registBoard([
 	]).
 
 
-floodFill:-		logicalBoard(LogicalBoard),
-				flood(blue, Rb, LogicalBoard),
-				flood(red, Rr, LogicalBoard),
-				flood(green, Rg, LogicalBoard),
-				flood(yellow, Ry, LogicalBoard),
-				append([Rb], [Rr], R1), append([Rg], [Ry], R2), append(R1, R2, R), write(R), !.
+floodFill(L,R):-
+				flood(blue, Rb, L),
+				flood(red, Rr, L),
+				flood(green, Rg, L),
+				flood(yellow, Ry, L),
+				append([Rb], [Rr], R1), append([Rg], [Ry], R2), append(R1, R2, R).
 
 flood(Color, Result, LogicalBoard):- 	registBoard(RegistBoard),
 										searchNextColorOcurrence(1, 1, LogicalBoard, RegistBoard, Color, [Row | [Col | _]]),
@@ -508,13 +663,14 @@ searchNextColorOcurrence(Row, Col, LogicalBoard, RegistBoard, Color, Result):- 	
 																				append([R], [C], Result).
 
 
-searchNextColorOcurrence(Row, Col, LogicalBoard, RegistBoard, Color, Result):- 	search(Row, Col, LogicalBoard, Color, [_]), 
+searchNextColorOcurrence(Row, Col, LogicalBoard, RegistBoard, Color, Result):- 	search(Row, Col, LogicalBoard, Color, _), 
 																				NextCol is Col + 1,
 																				searchNextColorOcurrence(Row, NextCol, LogicalBoard, RegistBoard, Color, Result).
 
 
 
 visitedCell(Row, Col, RegistBoard, Visited):-	getInfo(Row, Col, Visited, RegistBoard).
+
 visitedCell(9, 6, _, 0).
 
 setVisitedCell(Row, Col, RegistBoard, FinalRegistBoard):- setInfo(Row, Col, 1, RegistBoard, FinalRegistBoard).
@@ -568,3 +724,4 @@ search(Row, Col, LogicalBoard, Element, Result):- 	not(validCell(Row, Col)),
 search(Row, Col, LogicalBoard, Element, Result):-	validCell(Row, Col),
 													NewCol is Col + 1,
 													search(Row, NewCol, LogicalBoard, Element, Result).
+

@@ -1,5 +1,5 @@
 availableColors([blue, red, green, yellow]).
-availableStones([[15|blue],[1|red],[1|green],[1|yellow]]).
+availableStones([[15|blue],[15|red],[15|green],[15|yellow]]).
 playerInfo([]).
 
 
@@ -545,15 +545,15 @@ getBoardRow([H|_],1,H).
 
 
 logicalBoard([
-	            [red, red, red, red, red],
-	         [red, red, red, red, red, red],
-	      [empty, empty, empty, empty, red, red, red],
-	   [yellow, empty, empty, empty, empty, green, green, green],
-	[yellow, yellow, empty, empty, empty, green, green, green, green],
-	   [yellow, yellow, empty, empty, green, green, empty, blue],
-	      [yellow, yellow, yellow, empty, green, green, empty],
-	         [yellow, yellow, yellow, empty, green, green],
-	            [yellow, yellow, yellow, empty, green]
+	            [empty, empty, empty, empty, empty],
+	         [empty, empty, empty, empty, empty, empty],
+	      [empty, empty, empty, empty, empty, empty, empty],
+	   [empty, empty, empty, empty, empty, empty, empty, empty],
+	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
+	   [empty, empty, empty, empty, empty, empty, empty, empty],
+	      [empty, empty, empty, empty, empty, empty, empty],
+	         [empty, empty, empty, empty, empty, empty],
+	            [empty, empty, empty, empty, empty]
 	]).
 
 displayBoard([

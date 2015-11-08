@@ -5,6 +5,7 @@
 :- include('utilities.pl').
 :- include('menus.pl').
 :- include('game.pl').
+:- include('bot.pl').
 
 
 meerkats :- mainMenu.

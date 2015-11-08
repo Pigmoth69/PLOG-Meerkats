@@ -3,13 +3,18 @@ availableStones([[15|blue],[1|red],[1|green],[1|yellow]]).
 playerInfo([]).
 
 
-playGame(NumberPlayers):- 	availableColors(Colors),
-							N is 1,
-							playerInfo(Info),
-							assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo),
-							displayPrepareForTheGame(NumberPlayers),
-							gameStart(RInfo,Winner).
-							/*Esta RInfo é uma lista com os jogadores!*/
+playGame(NumberPlayers,NumberBots):- 	availableColors(Colors),
+										playerInfo(Info),
+										assignPlayerColorBOT(NumberBots, Colors,1,FinalBOTsInfo,ResultColors),
+										write(FinalBOTsInfo), nl,
+										Humans is NumberPlayers - NumberBots,
+										write('assigned bot colors'), nl,
+										assignPlayerColor(NumberPlayers, ResultColors, 1, FinalPlayersInfo,_),
+										write('assigned humans colors'), nl,
+										append(FinalPlayersInfo, FinalBOTsInfo, FinalInfo),
+										write(FinalInfo), nl,getEnter,
+										displayPrepareForTheGame(NumberPlayers),
+										gameStart(FinalInfo,Winner).
 							
 displayPrepareForTheGame(N):-
 	clearScreen,
@@ -22,39 +27,58 @@ displayPrepareForTheGame(N):-
 	write('***************************************************'), nl,
 	getEnter.
 							
+					
+					
+%------------------------------------------------------------%
+%------------------Sorting for Colors------------------------%
+%------------------------------------------------------------%
+
+assignPlayerColorBOT(0,Colors,_,[],Colors).
+
+assignPlayerColorBOT(NumberPlayers, Colors, N, [NewInfo | ResultInfo], ResultColors):-
+
+										N =< NumberPlayers,
+
+										sortPlayerColor(N, Colors, NewInfo, RemainingColors),
+
+										N1 is N + 1,
+
+										assignPlayerColorBOT(NumberPlayers, RemainingColors, N1, ResultInfo, ResultColors), !.	
 
 
 
-assignPlayerColor(NumberPlayers, Info, Colors, N, RInfo):-
+
+
+
+assignPlayerColor(0,Colors,_,[],Colors).
+
+assignPlayerColor(NumberPlayers, Colors, N, [[ID | [Color | []]] | ResultInfo], ResultColors):-
 										N =< NumberPlayers,
 										playerReadyForColorAssignment(N),
-										sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors),
+										sortPlayerColor(N, Colors, [ID | [Color | []]] , RemainingColors),
+										playerColorScreen(N, Color)
 										N1 is N + 1,
-										assignPlayerColor(NumberPlayers, ResultInfo, ResultColors, N1, RInfo).
-										
-assignPlayerColor(_, Info, _, _, Info).
+										assignPlayerColor(NumberPlayers, RemainingColors, N1, ResultInfo, ResultColors), !.			
 
+assignPlayerColor(_, Colors, _, [], Colors).
 
-sortPlayerColor(N, Info, Colors, ResultInfo, ResultColors):-
+sortPlayerColor(N, Colors, [N, Color], ResultColors):-
+
 										length(Colors, Length),
+
 										random(0, Length, Index),
-										getColor(Index, Color, Colors, ResultColors),
-										storeInfo(Info, Color, N, ResultInfo),
-										playerColorScreen(N, Color).
+
+										getColor(Index, Color, Colors, ResultColors).
 
 getColor(_, _, [],[]).
 
 getColor(Index, Color, [H|A], [H|NA]):- Index > 0,
+
 									    Nindex is Index-1,
+
 									    getColor(Nindex,Color,A,NA).
 
 getColor(0, Color, [Color|A], A).
-
-storeInfo(Info, Color, N, ResultInfo):- append(Info, [[N | Color]], ResultInfo).
-
-
-
-
 
 
 playerReadyForColorAssignment(N):-
@@ -126,22 +150,57 @@ playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,1,1).
 playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,2,2). 
 playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,3,3). 
 playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,4,4). 
-playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,Winner,FinalWinner). 
+playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,_,0). 
+
+
+
+
+
+/*Falta a play bot! só com players já funcemina! :D*/
+makePlay(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,N,Winner,FinalWinner):-
+		H > 4,
+		playBot(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,N,Winner,FinalWinner).
+
+makePlay(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,N,Winner,FinalWinner):-
+		H < 5,
+		playHuman(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,N,Winner,FinalWinner). 
+		
+		
+		
+
+		
+playHuman(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner,FinalWinner):-
+											withdrawStone(Stones,RemainingStones1,ChoosedStone),
+											getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
+											setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
+											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner,FinalWinner),!.
+											
+											
+playHuman(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,2,Winner,FinalWinner):-
+											dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1),
+											getWinningOnDrop(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner),!.
+																											
+playBot(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner,FinalWinner):-
+											withdrawStoneBOT(Stones,RemainingStones1,ChoosedStone),
+											getEmptyCellBOT(LogicalBoard,RowIdentifier,RowPos),
+											setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
+											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner,FinalWinner),!.
+
+playBot(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,2,Winner,FinalWinner):-
+											dropStoneBOT(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1),
+											getWinningOnDropBOT(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner),!.											
+											
+
 
 playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner,FinalWinner):-	
 											drawBoard(Board, LogicalBoard),
 											format('It is Player ~d turn!)', [H]), nl,
-											write('qwerty'), nl,
-											withdrawStone(Stones,RemainingStones1,ChoosedStone),
-											getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
-											setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
-											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner,FinalWinner).		
+											makePlay(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner,FinalWinner).		
 
 playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,2,Winner,FinalWinner):-	
 											drawBoard(Board, LogicalBoard),
 											format('It is Player ~d turn!)', [H]), nl,
-											dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1),
-											getWinningOnDrop(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones,N,Winner,RowIdentifier,RowPos,FinalWinner).
+											makePlay(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,2,Winner,FinalWinner).
 
 
 dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1):-
@@ -173,18 +232,22 @@ getWinningOnDrop(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,Rema
 getWinningOnDrop(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner):-
 											drawBoard(Board, FinalBoard),
 											dragStone(FinalBoard,RowIdentifier,RowPos,FinalBoard1),
+											write('arrastei!'),nl,
 											getWinningOnDrag(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner).
 											
 
 
-getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner):-	
+getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner):-	write('gg'),nl,
 			winner(FinalBoard, [H|T], Area),
+			write('gg2'),nl,
 			getPlayer(Players,H,ID),  /*Dou o check a ver se o player existe!*/
+			write('gg3'),nl,
 			ID \= 0,
+			write('gg4'),nl,
 			Area == 15-> write('Alguém ganhou no drag com 15 peças!'),nl,playRound(_,_,_,[],_,_,_,_,ID,ID).
 											
 											
-getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner):-
+getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos,FinalWinner):- write('gg20'),nl,
 								playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,FinalWinner).		
 
 
@@ -563,52 +626,14 @@ printCell(Element, LogicalElement):-
 printTopBorder:- write('           ---------------------').
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-logicalBoard1([
-	            [red, red, red, red, red],
-	         [red, red, red, red, red, red],
-	      [red, empty, empty, empty, red, red, red],
-	   [yellow, empty, empty, empty, empty, green, green, green],
-	[yellow, yellow, empty, empty, empty, green, green, green, green],
-	   [yellow, yellow, empty, green, green, green, empty, blue],
-	      [yellow, yellow, yellow, empty, green, green, empty],
-	         [yellow, yellow, yellow, empty, green, green],
-	            [yellow, yellow, yellow, empty, green]
-	]).
-
-
-
-tryhard():- 
-	logicalBoard(logicalBoard1),
-	winner(LogicalBoard, A, Area),
-	write(A),nl.
-
-
-
 %------------------------------------%
 %-----------Winner Calculator--------%
 %------------------------------------%
 
 
 winner(L, W, A):-
-				write('Winner1'),nl,
 				floodFill(L, R), nl,
-				write('Winner2'),nl,
-				calculateWinner(R, W, A),
-				write('Winner3'),nl.
+				calculateWinner(R, W, A).
 
 calculateWinner(Result, Winner, AreaResult):-	getMainGroups(Result, 16, Winner, AreaResult), !.
 

@@ -5,14 +5,10 @@ playerInfo([]).
 
 playGame(NumberPlayers,NumberBots):- 	availableColors(Colors),
 										playerInfo(Info),
-										assignPlayerColorBOT(NumberBots, Colors,1,FinalBOTsInfo,ResultColors),
-										write(FinalBOTsInfo), nl,
+										assignBOTColor(NumberBots, Colors,5,FinalBOTsInfo,ResultColors),
 										Humans is NumberPlayers - NumberBots,
-										write('assigned bot colors'), nl,
-										assignPlayerColor(NumberPlayers, ResultColors, 1, FinalPlayersInfo,_),
-										write('assigned humans colors'), nl,
+										assignPlayerColor(Humans, ResultColors, 1, FinalPlayersInfo,_),
 										append(FinalPlayersInfo, FinalBOTsInfo, FinalInfo),
-										write(FinalInfo), nl,getEnter,
 										displayPrepareForTheGame(NumberPlayers),
 										gameStart(FinalInfo,Winner).
 							
@@ -33,49 +29,42 @@ displayPrepareForTheGame(N):-
 %------------------Sorting for Colors------------------------%
 %------------------------------------------------------------%
 
-assignPlayerColorBOT(0,Colors,_,[],Colors).
+assignBOTColor(0,Colors,_,[],Colors).
 
-assignPlayerColorBOT(NumberPlayers, Colors, N, [NewInfo | ResultInfo], ResultColors):-
-
-										N =< NumberPlayers,
-
+assignBOTColor(NumberBots, Colors, N, [NewInfo | ResultInfo], ResultColors):-
+										Temp is NumberBots+4,
+										N =< Temp,
 										sortPlayerColor(N, Colors, NewInfo, RemainingColors),
-
 										N1 is N + 1,
+										assignBOTColor(NumberBots, RemainingColors, N1, ResultInfo, ResultColors).	
 
-										assignPlayerColorBOT(NumberPlayers, RemainingColors, N1, ResultInfo, ResultColors), !.	
-
-
+assignBOTColor(_, Colors, _, [], Colors).
 
 
 
 
 assignPlayerColor(0,Colors,_,[],Colors).
 
-assignPlayerColor(NumberPlayers, Colors, N, [[ID | [Color | []]] | ResultInfo], ResultColors):-
+assignPlayerColor(NumberPlayers, Colors, N, [[N| [Color | []]] | ResultInfo], ResultColors):-
 										N =< NumberPlayers,
 										playerReadyForColorAssignment(N),
-										sortPlayerColor(N, Colors, [ID | [Color | []]] , RemainingColors),
-										playerColorScreen(N, Color)
+										sortPlayerColor(N, Colors, [N | [Color | []]] , RemainingColors),
+										playerColorScreen(N, Color),
 										N1 is N + 1,
-										assignPlayerColor(NumberPlayers, RemainingColors, N1, ResultInfo, ResultColors), !.			
+										assignPlayerColor(NumberPlayers, RemainingColors, N1, ResultInfo, ResultColors).			
 
 assignPlayerColor(_, Colors, _, [], Colors).
 
 sortPlayerColor(N, Colors, [N, Color], ResultColors):-
-
 										length(Colors, Length),
-
 										random(0, Length, Index),
-
 										getColor(Index, Color, Colors, ResultColors).
+
 
 getColor(_, _, [],[]).
 
 getColor(Index, Color, [H|A], [H|NA]):- Index > 0,
-
 									    Nindex is Index-1,
-
 									    getColor(Nindex,Color,A,NA).
 
 getColor(0, Color, [Color|A], A).

@@ -1,0 +1,116 @@
+\documentclass[a4paper]{article}
+
+%use the english line for english reports
+%usepackage[english]{babel}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{indentfirst}
+\usepackage{graphicx}
+\usepackage{verbatim}
+
+
+\begin{document}
+
+\setlength{\textwidth}{16cm}
+\setlength{\textheight}{22cm}
+
+\title{\Huge\textbf{Título do Trabalho}\linebreak\linebreak\linebreak
+\Large\textbf{Relatório Final}\linebreak\linebreak
+\linebreak\linebreak
+\includegraphics[scale=0.1]{feup-logo.png}\linebreak\linebreak
+\linebreak\linebreak
+\Large{Mestrado Integrado em Engenharia Informática e Computação} \linebreak\linebreak
+\Large{Programação em Lógica}\linebreak
+}
+
+\author{\textbf{Grupo Meerkats02:}\\ Daniel Silva Reis - up201308586 \\ Guilherme Vieira Pinto - up201305803 \\\linebreak\linebreak \\
+ \\ Faculdade de Engenharia da Universidade do Porto \\ Rua Roberto Frias, s\/n, 4200-465 Porto, Portugal \linebreak\linebreak\linebreak
+\linebreak\linebreak\vspace{1cm}}
+%\date{Novembro de 2015}
+\maketitle
+\thispagestyle{empty}
+
+%************************************************************************************************
+%************************************************************************************************
+
+\newpage
+
+\section*{Resumo}
+No âmbito da unidade curricular de Programação Lógica, foi-nos proposto o desenvolvimento de um jogo de tabuleiro, em linguagem ProLog.
+O jogo apresentado pelo nosso grupo é o Meerkats. Focamo-nos na criação de uma aplicação de simples interação com o utilizador, com as intruções necessárias para que qualquer um entenda facilmente as regras e o objetivo do jogo.
+Podemos afirmar que alcançámos os objetivos pretendidos, criando uma versão funcional do Meerkats para Prolog, com uma interface legível e uma interação intuitiva. Destacamos também a integração de uma inteligência artificial robusta, capaz de colocar algumas dificuldades ao utilizador que se atrever a desafiá-lo.
+
+\newpage
+
+\tableofcontents
+
+%************************************************************************************************
+%************************************************************************************************
+
+%*************************************************************************************************
+%************************************************************************************************
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introdução}
+
+O objetivo deste projeto será a criação de um jogo simples e de fácil adaptação, disponibilizando na consola a informação indispensável para que o utilizador entende que ações lhe estão disponíveis. Para além de uma aplicação simples, prentendemos apresentar um programa robusto que seja capaz de cobrir qualquer jogada e condição que surja.
+Durante este relatório começaremos por introduzir as principais regras do jogo, seguido de uma explicação detalhada da lógica implementada no código entregue e, por fim, a demonstração, com casos ilustrativos, da interface disponibilizada ao utilizador.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{O Jogo XXX}
+
+Meerkats, traduzido a "suricatas", corresponde a um jogo de tabuleiro com regras inspiradas no comportamento desta espécie de mamífero. Sendo que um grupo de suricatas é mais forte dependendo do seu tamanho e desempenho dos seus membros, também o objetivo do jogo consiste na criação do maior grupo de pedras de uma determinada cor.
+
+É utilizado um tabuleiro hexagonal, com cinco células de cada lado, juntamente com 16 peças de cada cor (azul, vermelho, verde e amarelo).
+O jogo começa com o tabuleiro inicialmente vazio, e cada jogador deve retirar, aleatoriamente, uma entre quatro peças de cores diferentes, sem reposição. A cor da pedra sorteada por esse jogador definirá a cor pela qual ele deverá jogar. A cor da peça que cada jogador retira deverá manter-se secreta até ao final do jogo.
+Após o sorteio das cores, encontram-se disponiveis sessenta pedras (quinze de cada cor) para serem jogadas. Na primeira ronda, cada participante da partida deverá escolher uma peça, de qualquer cor, e jogá-la numa célula vazia do tabuleiro. Depois desta primeira ronda, cada jogador, no seu turno, deverá não só continuar a colocar uma nova peça, sob as mesmas condições, mas deverá também mover uma pedra presente no tabuleiro para um espaço vazio. Uma pedra pode ser movida em linha reta, em qualquer direção, até que uma outra pedra se depare no seu caminho ou os limites do tabuleiro lhe bloqueiem o movimento.
+
+O objetivo do jogo é que cada jogador consiga agrupar o maior número possível de peças da sua cor. No final, cada participante revela a cor que sorteou ao início e vence o jogador que tiver o maior aglomerado de pedras da sua cor, em campo. Em caso de empate, verificam-se as dimensões dos segundos maiores aglomerados respetivos às cores empatadas.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Lógica do Jogo}
+
+Descrever o projeto e implementação da lógica do jogo em Prolog, incluindo a forma de representação do estado do tabuleiro e sua visualização, execução de movimentos, verificação do cumprimento das regras do jogo, determinação do final do jogo e cálculo das jogadas a realizar pelo computador utilizando diversos níveis de jogo. Sugere-se a estruturação desta secção da seguinte forma:
+
+\subsection{Representação do Estado do Jogo} Pode ser idêntico ao descrito no relatório intercalar.)
+
+\subsection{Visualização do Tabuleiro} (Pode ser idêntico ao descrito no relatório intercalar.)
+
+\subsection{Lista de Jogadas Válidas} Obtenção de uma lista de jogadas possíveis. Exemplo: \textit{valid\_moves(+Board, -ListOfMoves)}.
+
+\subsection{Execução de Jogadas} Validação e execução de uma jogada num tabuleiro, obtendo o novo estado do jogo. Exemplo: \textit{move(+Move, +Board, -NewBoard)}.
+
+\subsection{Avaliação do Tabuleiro} Avaliação do estado do jogo, que permitirá comparar a aplicação das diversas jogadas disponíveis. Exemplo: \textit{value(+Board, +Player, -Value)}.
+
+\subsection{Final do Jogo} Verificação do fim do jogo, com identificação do vencedor. Exemplo: \textit{game\_over(+Board, -Winner)}.
+
+\subsection{Jogada do Computador} Escolha da jogada a efetuar pelo computador, dependendo do nível de dificuldade. Por exemplo: \textit{choose\_move(+Level, +Board, -Move)}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interface com o Utilizador}
+
+Descrever o módulo de interface com o utilizador em modo de texto.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusões}
+Que conclui deste projecto? Como poderia melhorar o trabalho desenvolvido?
+
+
+\clearpage
+\addcontentsline{toc}{section}{Bibliografia}
+\renewcommand\refname{Bibliografia}
+\bibliographystyle{plain}
+\bibliography{myrefs}
+
+\newpage
+\appendix
+\section{Nome do Anexo}
+Código Prolog implementado devidamente comentado e outros elementos úteis que não sejam essenciais ao relatório.
+
+\end{document}

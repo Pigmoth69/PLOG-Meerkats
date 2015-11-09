@@ -205,26 +205,24 @@ dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1
 
 
 
-getWinningOnDrop(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-
-		winner(FinalBoard, [H|_], Area), getPlayer(Players,H,ID), write(Area),  /*Dou o check a ver se o player existe!*/
-		(
-			(ID \= 0, Area == 15) -> Winner is ID;
+getWinningOnDrop(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
+			winner(FinalBoard, [H|_], 15), getPlayer(Players,H,ID), ID \= 0.
 
+getWinningOnDrop(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-
 			drawBoard(Board, FinalBoard), dragStone(FinalBoard,RowIdentifier,RowPos,FinalBoard1),
-			getWinningOnDrag(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos), !
-		).
+			getWinningOnDrag(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos), !.
+
 
 
 getWinningOnDrag(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
-			winner(FinalBoard, [H|_], Area), getPlayer(Players,H,ID), ID \= 0, Area == 15.
+			winner(FinalBoard, [H|_], 15), getPlayer(Players,H,ID), ID \= 0.
+
+getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,_,_):-
+			playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner), !.
+
 					
-getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,_,_):-playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner), !.
 									
 											
-%getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):- 
-%								winner(FinalBoard, [H|T], Area), write(Area), write(' '), write('fds'), getEnter,
-%								playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner), !.		
-
 
 /*Retorna o numero total de stones existente*/
 getTotalStoneNumber([],0).
@@ -371,8 +369,8 @@ dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
 										write('What stone do you want to move?'),nl,
 										getStoneCell(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
 										displayDirectionsList(Direction, NumberCells),
-										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Message,Final1,Final2),
-										Message == valid -> getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard);
+										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,valid,Final1,Final2),
+										getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard);
 										dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard).
 	
 /********************************************************/
@@ -485,9 +483,9 @@ getNotEqualCoords(Initial1,Initial2,ResCoord1,ResCoord2):-
 
 
 logicalBoard([
-	            [empty, empty, empty, empty, empty],
-	         [empty, empty, empty, empty, empty, empty],
-	      [empty, empty, empty, empty, empty, empty, empty],
+	            [blue, blue, blue, blue, blue],
+	         [blue, blue, blue, blue, blue, blue],
+	      [blue, blue, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],

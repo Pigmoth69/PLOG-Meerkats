@@ -14,27 +14,26 @@ withdrawStoneBOT(Stones,RemainingStones,StoneColor):-
 									StoneColor = ChoosedStone;
 									withdrawStoneBOT(Stones,RemainingStones,StoneColor).
 
-getWinningOnDropBOT(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-
-											winner(FinalBoard, [H|_], Area),getPlayer(Players,H,ID),
-											(
-												(ID \= 0, Area == 15) ->  nl,Winner is ID;
-
-												drawBoard(Board, FinalBoard),
-												dragStoneBOT(FinalBoard,RowIdentifier,RowPos,FinalBoard1),
-												getWinningOnDrag(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos)
-											).
+getWinningOnDropBOT(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
+											winner(FinalBoard, [H|_], 15),getPlayer(Players,H,ID),ID \= 0.
 											
-											
+getWinningOnDropBOT(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-		
+												drawBoard(Board, FinalBoard), write('drwn'), nl, 
+												dragStoneBOT(FinalBoard,RowIdentifier,RowPos,FinalBoard1), !,write('dragged'), nl, 
+												getWinningOnDrag(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos)	.			
 
 
 dragStoneBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
-										getStoneCellBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
-										random(1, 7, Direction),
-										random(1, 5, NumberCells),
-										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Message,Final1,Final2), 
-										Message == valid -> getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard);
-										dragStoneBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard).	
+										write('inside drag'),
+										getStoneCellBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2), write(Initial1), nl, write(Initial2), nl, 
+										random(1, 7, Direction),write(Direction), nl, 
+										random(1, 5, NumberCells),write(NumberCells), nl,
+										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Final1,Final2), write(Final1), nl,write(Final2), nl,
+										getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard).
 
+
+dragStoneBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
+										dragStoneBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard), !.	
 
 
 displayGetNumberCellsBOT(NumberCells):-	write('Insert the number of cells you want to drag your stone: '), random(1,10,NumberCells).					

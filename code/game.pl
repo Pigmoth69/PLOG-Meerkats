@@ -235,19 +235,24 @@ getTotalStoneNumber([[H|_]|Tail],Sum):-
 								
 /**********************************************************************************************************************************/
 		
-
-
-
-checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,Direction,NumberCells,valid,FinalRow,FinalCol):- ( 
-																					Direction == 1 -> checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
-																					Direction == 2 -> checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
-																					Direction == 3 -> checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
-																					Direction == 4 -> checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
-																					Direction == 5 -> checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol);
-																					Direction == 6 -> checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol)
-																					).
-checkDrag(_,_,_,_,_,invalid,_,_).
 																		
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,1,NumberCells,FinalRow,FinalCol):-
+									checkDragDiagonalUpLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
+
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,2,NumberCells,FinalRow,FinalCol):-
+									checkDragDiagonalUpRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
+
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,3,NumberCells,FinalRow,FinalCol):-
+									checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
+
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,4,NumberCells,FinalRow,FinalCol):-
+									checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
+
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,5,NumberCells,FinalRow,FinalCol):-									
+									checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
+
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,5,NumberCells,FinalRow,FinalCol):-	
+									checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
 
 
 checkDragDiagonalUpLeft(_,InitialCoord1,InitialCoord2,0,InitialCoord1,InitialCoord2).

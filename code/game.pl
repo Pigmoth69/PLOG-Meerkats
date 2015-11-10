@@ -109,7 +109,8 @@ gameStart(Players):- logicalBoard(LogicalBoard),
 							displayBoard(Board),
 							availableStones(Stones),
 							startPlaying(Board,Stones,LogicalBoard,Players,Winner, 1),
-							format('The Winner is: ~d',[Winner]),
+							getPlayerColor(Players,[Color|_],Winner),
+							format('The Winner is: ~d -> ~w color!',[Winner,Color]),
 							getEnter.
 
 showBoard():-
@@ -139,15 +140,33 @@ getPlayer([],_,0).
 getPlayer([[Id|[Color|_]]|_], Color, Id). 	
 getPlayer([_ | Tail],Color,Player):- getPlayer(Tail, Color, Player).
 
+getPlayerColor([],nocolor,_).
+getPlayerColor([[Id|Color]| _],Color,Id).
+getPlayerColor([_| Tail],Color,Id):-getPlayerColor(Tail,Color,Id).
+
+
 
 
 /*Faz uma jogada! Retornando o tabuleiro atual e as pedras restantes*/
-playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,1). 
+
+playRound(_,_,LogicalBoard,[],_,LogicalBoard,_,_,Winner):- nonvar(Winner),(
+																Winner == 1;
+																Winner == 2;
+																Winner == 3;
+																Winner == 4;
+																Winner == 5;
+																Winner == 6;
+																Winner == 7;
+																Winner == 8
+																),!.
+		
+playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones,_,_).
+/*
 playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,2). 
 playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,3). 
-playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,4). 
+playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,4).
 playRound(_,Stones,LogicalBoard,[],_,LogicalBoard,Stones, _,_).
-
+ */
 playRound(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner):-	
 											drawBoard(Board, LogicalBoard),
 											format('It is Player ~d turn!', [H]), nl,
@@ -174,18 +193,18 @@ makePlay(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingSto
 		
 		
 
-		
+/*A primeira jogada de todas*/
 playHuman(Board,Stones,LogicalBoard,[_|Tail],Players,ResultBoard,RemainingStones,1,Winner):-
 											withdrawStone(Stones,RemainingStones1,ChoosedStone),
 											getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
 											setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
 											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner),!.
 											
-											
+/*A segunda jogada e restantes jogadas*/										
 playHuman(Board,Stones,LogicalBoard,[_|Tail],Players,ResultBoard,RemainingStones,2,Winner):-
 											dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1),
 											getWinningOnDrop(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos),!.
-																											
+																					 						
 playBot(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingStones,1,Winner):-
 											dropStoneBOT(H,LogicalBoard,Stones,RemainingStones1,_,_,ResultBoard1),
 											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner),!.
@@ -206,16 +225,34 @@ dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1
 
 
 getWinningOnDrop(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
-			winner(FinalBoard, [H|_], 15), getPlayer(Players,H,ID), ID \= 0.
+			winner(FinalBoard, [H|_], 15),
+			getPlayer(Players,H,ID),
+			ID \= 0.
+			
+getWinningOnDrop(_,RemainingStones1,FinalBoard,_,Players,_,_,2,ID,_,_):-
+			write('RemStones: '),write(RemainingStones1),
+			getStoneNumber(RemainingStones1,red,Number1),
+			getStoneNumber(RemainingStones1,green,Number2),
+			getStoneNumber(RemainingStones1,blue,Number3),
+			getStoneNumber(RemainingStones1,yellow,Number4),
+			Number is Number1 + Number2 + Number3 + Number4,
+			Number == 0,
+			winner(FinalBoard, [H|_], _),
+			getPlayer(Players,H,ID).
+			
+			
 
 getWinningOnDrop(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos):-
-			drawBoard(Board, FinalBoard), dragStone(FinalBoard,RowIdentifier,RowPos,FinalBoard1),
+			drawBoard(Board, FinalBoard),
+			dragStone(FinalBoard,RowIdentifier,RowPos,FinalBoard1),
 			getWinningOnDrag(Board,RemainingStones1,FinalBoard1,Tail,Players,ResultBoard,RemainingStones,2,Winner,RowIdentifier,RowPos), !.
 
 
 
 getWinningOnDrag(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
-			winner(FinalBoard, [H|_], 15), getPlayer(Players,H,ID), ID \= 0.
+			winner(FinalBoard, [H|_], 15),
+			getPlayer(Players,H,ID),
+			ID \= 0.
 
 getWinningOnDrag(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner,_,_):-
 			playRound(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,RemainingStones,2,Winner), !.
@@ -246,12 +283,12 @@ checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,3,NumberCells,FinalRow,FinalC
 									checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
 
 checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,4,NumberCells,FinalRow,FinalCol):-
-									checkDragRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
+									checkDragDiagonalDownRight(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol). 
 
 checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,5,NumberCells,FinalRow,FinalCol):-									
 									checkDragDiagonalDownLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
 
-checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,5,NumberCells,FinalRow,FinalCol):-	
+checkDrag(LogicalBoard,InitialCoord1,InitialCoord2,6,NumberCells,FinalRow,FinalCol):-	
 									checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,FinalCol).
 
 
@@ -351,7 +388,6 @@ checkDragLeft(LogicalBoard,InitialCoord1,InitialCoord2,NumberCells,FinalRow,Fina
 																				Info == empty, !,
 																				NewNumberCells is NumberCells - 1,
 																				checkDragLeft(LogicalBoard,InitialCoord1,NewCol,NewNumberCells,FinalRow,FinalCol).
-
 																				
 																				
 /*Message = valid ou invalid*/	
@@ -374,7 +410,7 @@ dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
 										write('What stone do you want to move?'),nl,
 										getStoneCell(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
 										displayDirectionsList(Direction, NumberCells),
-										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,valid,Final1,Final2),
+										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Final1,Final2),
 										getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard);
 										dragStone(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard).
 	
@@ -488,9 +524,9 @@ getNotEqualCoords(Initial1,Initial2,ResCoord1,ResCoord2):-
 
 
 logicalBoard([
-	            [blue, blue, blue, blue, blue],
-	         [blue, blue, blue, blue, blue, blue],
-	      [blue, blue, empty, empty, empty, empty, empty],
+	            [empty, empty, empty, empty, empty],
+	         [empty, empty, empty, empty, empty, empty],
+	      [empty, empty, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],
 	[empty, empty, empty, empty, empty, empty, empty, empty, empty],
 	   [empty, empty, empty, empty, empty, empty, empty, empty],

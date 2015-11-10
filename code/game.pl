@@ -110,9 +110,20 @@ gameStart(Players):- logicalBoard(LogicalBoard),
 							availableStones(Stones),
 							startPlaying(Board,Stones,LogicalBoard,Players,Winner, 1),
 							getPlayerColor(Players,[Color|_],Winner),
-							format('The Winner is: ~d -> ~w color!',[Winner,Color]),
-							getEnter.
+							displayWinner(Winner,Color).
+							
 
+displayWinner(Winner,Color):-
+						Winner < 5,
+						format('The Winner is: ~d -> ~w color!',[Winner,Color]),
+						getEnter.
+displayWinner(Winner,Color):-
+						Winner > 4,
+						WinnerBOT is Winner -5,
+						format('The Winner is: ~d -> ~w color!',[WinnerBOT,Color]),
+						getEnter.
+							
+							
 showBoard():-
 			logicalBoard(LogicalBoard),
 			displayBoard(Board),
@@ -196,6 +207,7 @@ makePlay(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingSto
 /*A primeira jogada de todas*/
 playHuman(Board,Stones,LogicalBoard,[_|Tail],Players,ResultBoard,RemainingStones,1,Winner):-
 											withdrawStone(Stones,RemainingStones1,ChoosedStone),
+											displayRemainingStones(RemainingStones1),
 											getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
 											setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
 											playRound(Board,RemainingStones1,ResultBoard1,Tail,Players,ResultBoard,RemainingStones, 2,Winner),!.
@@ -219,6 +231,7 @@ playBot(Board,Stones,LogicalBoard,[[H|_]|Tail],Players,ResultBoard,RemainingSton
 
 dropStone(LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1):-
 			withdrawStone(Stones,RemainingStones1,ChoosedStone),
+			displayRemainingStones(RemainingStones1),
 			getEmptyCell(LogicalBoard,RowIdentifier,RowPos),
 			setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1).
 
@@ -230,7 +243,6 @@ getWinningOnDrop(_,_,FinalBoard,_,Players,_,_,2,ID,_,_):-
 			ID \= 0.
 			
 getWinningOnDrop(_,RemainingStones1,FinalBoard,_,Players,_,_,2,ID,_,_):-
-			write('RemStones: '),write(RemainingStones1),
 			getStoneNumber(RemainingStones1,red,Number1),
 			getStoneNumber(RemainingStones1,green,Number2),
 			getStoneNumber(RemainingStones1,blue,Number3),
@@ -433,11 +445,10 @@ displayRemainingStones([[Blue | _] | [[Red | _] | [[Green | _] | [[Yellow| _]]]]
 
 								
 /*Faz a jogava correspondente a retirar uma peça das Stones que ainda restam e "retorna" as Stones que restam*/
-withdrawStone(Stones,RemainingStones,StoneColor):-	
-									displayRemainingStones(Stones),
-									chooseStone(ChoosedStone),
+withdrawStone(Stones,RemainingStones,StoneColor):-
+									chooseStoneBOT(ChoosedStone),
 									getStoneNumber(Stones,ChoosedStone,Number),
-									Number > 0 ->write('Stone withdraw!'),nl, NewNum is Number -1,setStoneNumber(Stones,ChoosedStone,NewNum,RemainingStones),StoneColor = ChoosedStone;
+									Number > 0 ->write('Stone withdraw: '),write(ChoosedStone),nl, NewNum is Number -1,setStoneNumber(Stones,ChoosedStone,NewNum,RemainingStones),StoneColor = ChoosedStone;
 									write('There are no more of those stones! Choose another one!'),nl,
 									withdrawStone(Stones,RemainingStones,StoneColor).
 									

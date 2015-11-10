@@ -39,10 +39,10 @@ getWinningOnDropBOT(Board,RemainingStones1,FinalBoard,Tail,Players,ResultBoard,R
 
 
 dragStoneBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,ResultBoard):-
-										getStoneCellBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2), write(Initial1), nl, write(Initial2), nl, 
-										random(1, 7, Direction),write(Direction), nl, 
-										random(1, 5, NumberCells),write(NumberCells), nl,
-										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Final1,Final2), write(Final1), nl,write(Final2), nl,
+										getStoneCellBOT(LogicalBoard,PlayedStoneCoord1,PlayedStoneCoord2,Initial1,Initial2),
+										random(1, 7, Direction), 
+										random(1, 5, NumberCells),
+										checkDrag(LogicalBoard,Initial1,Initial2,Direction,NumberCells,Final1,Final2),
 										getInfo(Initial1,Initial2,Stone,LogicalBoard),setInfo(Initial1,Initial2,empty,LogicalBoard,Res),setInfo(Final1,Final2,Stone,Res,ResultBoard).
 
 
@@ -110,9 +110,7 @@ getValidCoordsBOT(X,Y):-
 	
 
 
-dropStoneBOT(ID,LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1):-
-			format('BOT ~d dropped a ', [ID]),
+dropStoneBOT(_,LogicalBoard,Stones,RemainingStones1,RowIdentifier,RowPos,ResultBoard1):-
 			withdrawStoneBOT(Stones,RemainingStones1,ChoosedStone),
 			getEmptyCellBOT(LogicalBoard,RowIdentifier,RowPos),
-			setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1),
-			format(' stone into the position [~d, ~d].', [RowIdentifier,RowPos]), nl.
+			setInfo(RowIdentifier,RowPos,ChoosedStone,LogicalBoard,ResultBoard1).

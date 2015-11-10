@@ -609,7 +609,6 @@ printTopBorder:- write('           ---------------------').
 %-----------Winner Calculator--------%
 %------------------------------------%
 
-
 winner(L, W, A):-
 				floodFill(L, R), nl,
 				calculateWinner(R, W, A).
@@ -705,18 +704,46 @@ calculateArea(Row, Col, Color, RegistBoard, LogicalBoard, FinalArea, FinalRegist
 																						MajorRow is Row + 1,
 																						MinorCol is Col - 1,
 																						MajorCol is Col + 1,
-																						calculateArea(MinorRow, MinorCol, Color, NewRegistBoard, LogicalBoard, A1, FR1),
-																						calculateArea(MinorRow, Col, Color, FR1, LogicalBoard, A2, FR2),
-																						calculateArea(MinorRow, MajorCol, Color, FR2, LogicalBoard, A3, FR3),
-																						calculateArea(Row, MinorCol, Color, FR3, LogicalBoard, A4, FR4),
-																						calculateArea(Row, MajorCol, Color, FR4, LogicalBoard, A5, FR5),
-																						calculateArea(MajorRow, MinorCol, Color, FR5, LogicalBoard, A6, FR6),
-																						calculateArea(MajorRow, Col, Color, FR6, LogicalBoard, A7, FR7),
-																						calculateArea(MajorRow, MajorCol, Color, FR7, LogicalBoard, A8, FinalRegistBoard),
-																						FinalArea is 1+A1+A2+A3+A4+A5+A6+A7+A8, !.
+																						calculateUpperLeft(Row, Col, Color, NewRegistBoard, LogicalBoard, A1, FR1),
+																						calculateUpperRight(Row, Col, Color, FR1, LogicalBoard, A2, FR2),
+																						calculateRight(Row, Col, Color, FR2, LogicalBoard, A3, FR3),
+																						calculateDownRight(Row, Col, Color, FR3, LogicalBoard, A4, FR4),
+																						calculateDownLeft(Row, Col, Color, FR4, LogicalBoard, A5, FR5),
+																						calculateLeft(Row, Col, Color, FR5, LogicalBoard, A6, FinalRegistBoard),
+																						FinalArea is 1+A1+A2+A3+A4+A5+A6, !.
 
 
 calculateArea(_, _, _, RegistBoard, _, 0, RegistBoard).
+
+
+
+calculateUpperLeft(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-
+					Row > 5, NewRow is Row - 1, calculateArea(NewRow, Col, Color, RegistBoard, LogicalBoard, A, FR).
+calculateUpperLeft(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-					
+					NewRow is Row - 1, NewCol is Col - 1, calculateArea(NewRow, NewCol, Color, RegistBoard, LogicalBoard, A, FR).
+
+calculateUpperRight(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-
+					Row > 5, NewRow is Row - 1, NewCol is Col + 1, calculateArea(NewRow, NewCol, Color, RegistBoard, LogicalBoard, A, FR).
+calculateUpperRight(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-					
+					NewRow is Row - 1, calculateArea(NewRow, Col, Color, RegistBoard, LogicalBoard, A, FR).
+
+calculateRight(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-
+					NewCol is Col + 1, calculateArea(Row, NewCol, Color, RegistBoard, LogicalBoard, A, FR).
+
+calculateDownRight(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-
+					Row > 4, NewRow is Row + 1, calculateArea(NewRow, Col, Color, RegistBoard, LogicalBoard, A, FR).
+calculateDownRight(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-					
+					NewRow is Row + 1, NewCol is Col + 1, calculateArea(NewRow, NewCol, Color, RegistBoard, LogicalBoard, A, FR).
+
+calculateDownLeft(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-
+					Row > 4, NewRow is Row + 1, NewCol is Col - 1, calculateArea(NewRow, NewCol, Color, RegistBoard, LogicalBoard, A, FR).
+calculateDownLeft(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-					
+					NewRow is Row + 1, calculateArea(NewRow, Col, Color, RegistBoard, LogicalBoard, A, FR).
+
+calculateLeft(Row, Col, Color, RegistBoard, LogicalBoard, A, FR):-
+					NewCol is Col - 1, calculateArea(Row, NewCol, Color, RegistBoard, LogicalBoard, A, FR).
+
+
 
 
 searchNextColorOcurrence(9, 6, _, _, _, [9, 6]).

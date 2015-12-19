@@ -119,8 +119,8 @@ displayWinner(Winner,Color):-
 						getEnter.
 displayWinner(Winner,Color):-
 						Winner > 4,
-						WinnerBOT is Winner -5,
-						format('The Winner is: ~d -> ~w color!',[WinnerBOT,Color]),
+						WinnerBOT is Winner - 4,
+						format('The Winner is: BOT ~d -> ~w color!',[WinnerBOT,Color]),
 						getEnter.
 							
 							
@@ -699,11 +699,7 @@ calculateArea(Row, Col, Color, RegistBoard, LogicalBoard, FinalArea, FinalRegist
 																						Visited = 0,
 																						checkForColor(Row, Col, NewColor, LogicalBoard),
 																						NewColor = Color,
-																						setVisitedCell(Row, Col, RegistBoard, NewRegistBoard),	
-																						MinorRow is Row - 1,
-																						MajorRow is Row + 1,
-																						MinorCol is Col - 1,
-																						MajorCol is Col + 1,
+																						setVisitedCell(Row, Col, RegistBoard, NewRegistBoard),
 																						calculateUpperLeft(Row, Col, Color, NewRegistBoard, LogicalBoard, A1, FR1),
 																						calculateUpperRight(Row, Col, Color, FR1, LogicalBoard, A2, FR2),
 																						calculateRight(Row, Col, Color, FR2, LogicalBoard, A3, FR3),
